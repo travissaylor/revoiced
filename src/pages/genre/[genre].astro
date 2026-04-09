@@ -26,6 +26,7 @@ interface Props {
 
 const { genre, entries } = Astro.props;
 const sorted = entries.sort((a, b) => a.data.title.localeCompare(b.data.title));
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title={genre}>
@@ -34,7 +35,7 @@ const sorted = entries.sort((a, b) => a.data.title.localeCompare(b.data.title));
   <ul class="card-grid">
     {sorted.map((entry) => (
       <li class="card">
-        <a href={`/${entry.id}`}>
+        <a href={`${base}${entry.id}`}>
           <h2 class="card-title">{entry.data.title}</h2>
           <p class="card-meta">by {entry.data.author} &middot; {entry.data.publication_year}</p>
         </a>

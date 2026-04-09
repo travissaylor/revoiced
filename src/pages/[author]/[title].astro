@@ -17,6 +17,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { title, author, genre, publication_year } = entry.data;
+const base = import.meta.env.BASE_URL;
 ---
 
 <html lang="en">
@@ -136,7 +137,7 @@ const { title, author, genre, publication_year } = entry.data;
   <body>
     <div class="progress-bar" id="progress-bar"></div>
     <div class="container">
-      <a href="/" class="back-link" data-pagefind-ignore>&larr; All summaries</a>
+      <a href={base} class="back-link" data-pagefind-ignore>&larr; All summaries</a>
       <header>
         <h1 data-pagefind-weight="10" data-pagefind-meta="title">{title}</h1>
         <div class="meta">

@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 const summaries = await getCollection('summaries');
 const sorted = summaries.sort((a, b) => a.data.title.localeCompare(b.data.title));
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Revoiced">
@@ -14,7 +15,7 @@ const sorted = summaries.sort((a, b) => a.data.title.localeCompare(b.data.title)
 
   <div class="card-grid">
     {sorted.map((entry) => (
-      <a href={`/${entry.id}`} class="card">
+      <a href={`${base}${entry.id}`} class="card">
         <h2 class="card-title">{entry.data.title}</h2>
         <p class="card-author">{entry.data.author}</p>
         <div class="card-meta">
