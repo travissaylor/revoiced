@@ -1,0 +1,21 @@
+{
+  "name": "static-summary-browser",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "postbuild": "pagefind --site dist",
+    "preview": "astro preview",
+    "typecheck": "astro check",
+    "lint": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.8",
+    "astro": "^6.1.5",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "pagefind": "^1.5.0"
+  }
+}

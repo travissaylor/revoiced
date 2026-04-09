@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const summaries = await getCollection('summaries');
+
+  const genreMap = new Map<string, typeof summaries>();
+  for (const entry of summaries) {
+    const slug = entry.data.genre.toLowerCase().replace(/\s+/g, '-');
+    const list = genreMap.get(slug) ?? [];
+    list.push(entry);
+    genreMap.set(slug, list);
+  }
+
+  return [...genreMap.entries()].map(([slug, entries]) => ({
+    params: { genre: slug },
+    props: { genre: entries[0].data.genre, entries },
+  }));
+}
+
+interface Props {
+  genre: string;
+  entries: Awaited<ReturnType<typeof getCollection<'summaries'>>>;
+}
+
+const { genre, entries } = Astro.props;
+const sorted = entries.sort((a, b) => a.data.title.localeCompare(b.data.title));
+---
+
+<BaseLayout title={genre}>
+  <h1>{genre}</h1>
+  <p>{sorted.length} {sorted.length === 1 ? 'summary' : 'summaries'}</p>
+  <ul class="card-grid">
+    {sorted.map((entry) => (
+      <li class="card">
+        <a href={`/${entry.id}`}>
+          <h2 class="card-title">{entry.data.title}</h2>
+          <p class="card-meta">by {entry.data.author} &middot; {entry.data.publication_year}</p>
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .card-grid {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .card a {
+    display: block;
+    padding: var(--space-md);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card a:hover {
+    text-decoration: none;
+  }
+
+  .card-title {
+    font-size: 1.1rem;
+    margin: 0 0 var(--space-xs);
+    color: var(--color-link);
+  }
+
+  .card-meta {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+</style>

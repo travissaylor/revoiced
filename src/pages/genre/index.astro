@@ -1,0 +1,58 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const summaries = await getCollection('summaries');
+
+const genreCounts = new Map<string, number>();
+for (const entry of summaries) {
+  const genre = entry.data.genre;
+  genreCounts.set(genre, (genreCounts.get(genre) ?? 0) + 1);
+}
+
+const genres = [...genreCounts.entries()]
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([genre, count]) => ({
+    name: genre,
+    slug: genre.toLowerCase().replace(/\s+/g, '-'),
+    count,
+  }));
+---
+
+<BaseLayout title="Genres">
+  <h1>Genres</h1>
+  <ul class="genre-list">
+    {genres.map((g) => (
+      <li>
+        <a href={`/genre/${g.slug}`}>{g.name}</a>
+        <span class="count">{g.count}</span>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .genre-list {
+    list-style: none;
+    max-width: var(--measure);
+    margin-top: var(--space-lg);
+  }
+
+  .genre-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .genre-list a {
+    font-size: 1.125rem;
+  }
+
+  .count {
+    font-family: var(--font-heading);
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+  }
+</style>
