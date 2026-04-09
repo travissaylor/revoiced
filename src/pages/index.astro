@@ -3,9 +3,97 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
 const summaries = await getCollection('summaries');
+const sorted = summaries.sort((a, b) => a.data.title.localeCompare(b.data.title));
 ---
 
 <BaseLayout title="Revoiced">
-  <h1>Book Summaries</h1>
-  <p>{summaries.length} summaries available.</p>
+  <section class="intro">
+    <h1>Revoiced</h1>
+    <p>Books re-told in the author's voice. Browse our collection of summaries that capture each book's essence through the distinctive style of its creator.</p>
+  </section>
+
+  <div class="card-grid">
+    {sorted.map((entry) => (
+      <a href={`/${entry.id}`} class="card">
+        <h2 class="card-title">{entry.data.title}</h2>
+        <p class="card-author">{entry.data.author}</p>
+        <div class="card-meta">
+          <span class="card-genre">{entry.data.genre}</span>
+          <span class="card-year">{entry.data.publication_year}</span>
+        </div>
+      </a>
+    ))}
+  </div>
 </BaseLayout>
+
+<style>
+  .intro {
+    margin-bottom: var(--space-xl);
+  }
+
+  .intro h1 {
+    margin-top: 0;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-lg);
+  }
+
+  @media (min-width: 640px) {
+    .card-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 960px) {
+    .card-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .card {
+    display: block;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: var(--space-lg);
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    border-color: var(--color-link);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-decoration: none;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+    margin: 0 0 var(--space-xs);
+    color: var(--color-heading);
+  }
+
+  .card-author {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-md);
+  }
+
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+
+  .card-genre {
+    background-color: var(--color-bg);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: 4px;
+    font-size: 0.8rem;
+  }
+</style>
