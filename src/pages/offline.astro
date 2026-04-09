@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title="Offline">
+  <section class="offline-page" data-pagefind-ignore>
+    <h1>You're offline</h1>
+    <p class="offline-message">
+      It looks like you've lost your internet connection. The page you requested isn't available offline.
+    </p>
+    <p class="offline-suggestion">
+      Pages you've visited before may still be available. Try one of these:
+    </p>
+    <ul class="offline-actions">
+      <li><a href={base}>Go to the homepage</a></li>
+      <li><a href="javascript:history.back()">Go back to the previous page</a></li>
+    </ul>
+    <p class="offline-hint">
+      Tip: pages you visit while online are saved for offline reading automatically.
+    </p>
+  </section>
+</BaseLayout>
+
+<style>
+  .offline-page {
+    text-align: center;
+    padding: var(--space-xl) 0;
+  }
+
+  .offline-page h1 {
+    margin-top: 0;
+    font-size: 2rem;
+  }
+
+  .offline-message {
+    font-size: 1.15rem;
+    color: var(--color-text-muted);
+    max-width: 40ch;
+    margin: var(--space-md) auto;
+  }
+
+  .offline-suggestion {
+    color: var(--color-text);
+    margin: var(--space-lg) auto var(--space-md);
+    max-width: 40ch;
+  }
+
+  .offline-actions {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    align-items: center;
+    margin-bottom: var(--space-xl);
+  }
+
+  .offline-actions a {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    padding: var(--space-sm) var(--space-lg);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    display: inline-block;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+
+  .offline-actions a:hover {
+    border-color: var(--color-link);
+    background-color: var(--color-surface);
+    text-decoration: none;
+  }
+
+  .offline-hint {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    max-width: 45ch;
+    margin: 0 auto;
+  }
+</style>
