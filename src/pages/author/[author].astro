@@ -26,6 +26,7 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { name, entries } = Astro.props;
+const base = import.meta.env.BASE_URL;
 
 // Sort by title
 const sorted = entries.sort((a: (typeof entries)[0], b: (typeof entries)[0]) =>
@@ -39,7 +40,7 @@ const sorted = entries.sort((a: (typeof entries)[0], b: (typeof entries)[0]) =>
 
   <div class="card-grid">
     {sorted.map((entry: (typeof entries)[0]) => (
-      <a href={`/${entry.id}`} class="card">
+      <a href={`${base}${entry.id}`} class="card">
         <h2 class="card-title">{entry.data.title}</h2>
         <p class="card-meta">
           {entry.data.genre} &middot; {entry.data.publication_year}

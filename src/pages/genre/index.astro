@@ -17,6 +17,7 @@ const genres = [...genreCounts.entries()]
     slug: genre.toLowerCase().replace(/\s+/g, '-'),
     count,
   }));
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Genres">
@@ -24,7 +25,7 @@ const genres = [...genreCounts.entries()]
   <ul class="genre-list">
     {genres.map((g) => (
       <li>
-        <a href={`/genre/${g.slug}`}>{g.name}</a>
+        <a href={`${base}genre/${g.slug}`}>{g.name}</a>
         <span class="count">{g.count}</span>
       </li>
     ))}

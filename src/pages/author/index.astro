@@ -20,6 +20,7 @@ for (const entry of summaries) {
 const authors = [...authorMap.entries()]
   .map(([slug, { name, count }]) => ({ slug, name, count }))
   .sort((a, b) => a.name.localeCompare(b.name));
+const base = import.meta.env.BASE_URL;
 ---
 
 <BaseLayout title="Authors">
@@ -29,7 +30,7 @@ const authors = [...authorMap.entries()]
   <ul class="author-list">
     {authors.map((author) => (
       <li>
-        <a href={`/author/${author.slug}`}>
+        <a href={`${base}author/${author.slug}`}>
           {author.name}
         </a>
         <span class="count">{author.count} {author.count === 1 ? 'summary' : 'summaries'}</span>

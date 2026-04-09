@@ -5,6 +5,7 @@ interface Props {
 
 const { title = 'Revoiced' } = Astro.props;
 const pageTitle = title === 'Revoiced' ? title : `${title} — Revoiced`;
+const base = import.meta.env.BASE_URL;
 ---
 
 <html lang="en">
@@ -16,27 +17,30 @@ const pageTitle = title === 'Revoiced' ? title : `${title} — Revoiced`;
   <body>
     <header class="site-header" data-pagefind-ignore>
       <div class="header-inner">
-        <a href="/" class="site-name">Revoiced</a>
+        <a href={base} class="site-name">Revoiced</a>
         <nav class="site-nav">
-          <a href="/author">Authors</a>
-          <a href="/genre">Genres</a>
-          <a href="/recent">Recent</a>
+          <a href={`${base}author`}>Authors</a>
+          <a href={`${base}genre`}>Genres</a>
+          <a href={`${base}recent`}>Recent</a>
         </nav>
         <div class="search-bar">
           <div id="search"></div>
         </div>
       </div>
     </header>
-    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
-    <script is:inline src="/pagefind/pagefind-ui.js"></script>
-    <script is:inline>
-      window.addEventListener('DOMContentLoaded', function() {
+    <link href={`${base}pagefind/pagefind-ui.css`} rel="stylesheet" />
+    <script is:inline define:vars={{ base }}>
+      const pagefindScript = document.createElement('script');
+      pagefindScript.src = base + 'pagefind/pagefind-ui.js';
+      pagefindScript.onload = function() {
         new PagefindUI({
           element: '#search',
-          showSubResults: true,
+          showSubResults: false,
           showImages: false,
+          baseUrl: base
         });
-      });
+      };
+      document.head.appendChild(pagefindScript);
     </script>
 
     <main>
