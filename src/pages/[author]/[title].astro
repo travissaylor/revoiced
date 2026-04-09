@@ -1,0 +1,164 @@
+---
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const summaries = await getCollection('summaries');
+  return summaries.map((entry) => {
+    const parts = entry.id.split('/');
+    const author = parts[0];
+    const title = parts[1];
+    return {
+      params: { author, title },
+      props: { entry },
+    };
+  });
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const { title, author, genre, publication_year } = entry.data;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} by {author} — Revoiced</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .progress-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 4px;
+        background: #2563eb;
+        z-index: 1000;
+        transition: width 50ms linear;
+      }
+
+      body {
+        font-family: Georgia, 'Times New Roman', serif;
+        color: #1a1a1a;
+        background: #fafaf8;
+        line-height: 1.8;
+      }
+
+      .back-link {
+        display: inline-block;
+        padding: 1.5rem 0 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-decoration: none;
+      }
+
+      .back-link:hover {
+        color: #2563eb;
+      }
+
+      .container {
+        max-width: 70ch;
+        margin: 0 auto;
+        padding: 0 1.5rem 4rem;
+      }
+
+      header {
+        padding: 2rem 0 2.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #e5e5e0;
+      }
+
+      header h1 {
+        font-size: 2.25rem;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+        color: #111;
+        letter-spacing: -0.02em;
+      }
+
+      .meta {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 0.9rem;
+        color: #6b7280;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 1rem;
+      }
+
+      .meta span {
+        white-space: nowrap;
+      }
+
+      .prose {
+        font-size: 1.125rem;
+      }
+
+      .prose :global(p) {
+        margin-bottom: 1.5em;
+        text-align: justify;
+        hyphens: auto;
+      }
+
+      .prose :global(h2) {
+        font-size: 1.5rem;
+        margin: 2em 0 0.75em;
+      }
+
+      .prose :global(h3) {
+        font-size: 1.25rem;
+        margin: 1.5em 0 0.5em;
+      }
+
+      .prose :global(blockquote) {
+        border-left: 3px solid #d1d5db;
+        padding-left: 1em;
+        margin: 1.5em 0;
+        color: #4b5563;
+        font-style: italic;
+      }
+
+      @media (max-width: 640px) {
+        header h1 {
+          font-size: 1.75rem;
+        }
+        .prose {
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar" id="progress-bar"></div>
+    <div class="container">
+      <a href="/" class="back-link">&larr; All summaries</a>
+      <header>
+        <h1>{title}</h1>
+        <div class="meta">
+          <span>by {author}</span>
+          <span>{genre}</span>
+          <span>{publication_year}</span>
+        </div>
+      </header>
+      <article class="prose">
+        <Content />
+      </article>
+    </div>
+    <script>
+      const bar = document.getElementById('progress-bar')!;
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = `${Math.min(progress, 100)}%`;
+      }
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+    </script>
+  </body>
+</html>
