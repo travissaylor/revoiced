@@ -59,6 +59,75 @@ const base = import.meta.env.BASE_URL;
         navigator.serviceWorker.register(base + 'sw.js', { scope: base });
       }
     </script>
+    <script is:inline define:vars={{ base }}>
+      // Background prefetch of unvisited summaries (US-004)
+      (function prefetchUnvisited() {
+        if (!('caches' in window) || !('serviceWorker' in navigator)) return;
+
+        var CACHE_NAME = 'revoiced-v1';
+
+        function startPrefetch() {
+          // Wait for the service worker to be ready before prefetching
+          navigator.serviceWorker.ready.then(function() {
+            fetchSitemapUrls().then(function(urls) {
+              if (urls.length === 0) return;
+              prefetchInIdle(urls, 0);
+            });
+          });
+        }
+
+        function fetchSitemapUrls() {
+          return fetch(base + 'sitemap-0.xml')
+            .then(function(res) {
+              if (!res.ok) return [];
+              return res.text();
+            })
+            .then(function(xml) {
+              if (!xml) return [];
+              var parser = new DOMParser();
+              var doc = parser.parseFromString(xml, 'application/xml');
+              var locs = doc.querySelectorAll('url > loc');
+              var urls = [];
+              for (var i = 0; i < locs.length; i++) {
+                urls.push(locs[i].textContent);
+              }
+              return urls;
+            })
+            .catch(function() { return []; });
+        }
+
+        function prefetchInIdle(urls, index) {
+          if (index >= urls.length) return;
+          var schedule = window.requestIdleCallback || function(cb) { setTimeout(cb, 200); };
+          schedule(function(deadline) {
+            prefetchOne(urls[index]).then(function() {
+              prefetchInIdle(urls, index + 1);
+            });
+          }, { timeout: 5000 });
+        }
+
+        function prefetchOne(url) {
+          // Convert absolute sitemap URL to same-origin path
+          var a = document.createElement('a');
+          a.href = url;
+          var request = new Request(a.href);
+          return caches.open(CACHE_NAME).then(function(cache) {
+            return cache.match(request).then(function(hit) {
+              if (hit) return; // already cached, skip
+              return fetch(request).then(function(response) {
+                if (response.ok) {
+                  return cache.put(request, response);
+                }
+              }).catch(function() { /* ignore fetch errors */ });
+            });
+          });
+        }
+
+        // Start prefetching after page is idle
+        var schedule = window.requestIdleCallback || function(cb) { setTimeout(cb, 200); };
+        schedule(startPrefetch, { timeout: 10000 });
+      })();
+    </script>
   </body>
 </html>
 
