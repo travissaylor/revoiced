@@ -4,10 +4,14 @@
 const CACHE_NAME = 'revoiced-v1';
 const BASE = '/revoiced/';
 
+// Offline fallback page URL
+const OFFLINE_PAGE = BASE + 'offline/';
+
 // App shell resources cached on install
 const APP_SHELL = [
   BASE,
   BASE + 'manifest.json',
+  OFFLINE_PAGE,
 ];
 
 // Install: cache the app shell
@@ -54,6 +58,15 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(request))
+      .catch(() =>
+        caches.match(request).then((cached) => {
+          if (cached) return cached;
+          // Serve offline fallback for navigation requests (HTML pages)
+          if (request.mode === 'navigate') {
+            return caches.match(OFFLINE_PAGE);
+          }
+          return cached;
+        })
+      )
   );
 });
