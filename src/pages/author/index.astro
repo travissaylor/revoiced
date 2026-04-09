@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const summaries = await getCollection('summaries');
+
+// Build a map of author-slug -> { name, count }
+const authorMap = new Map<string, { name: string; count: number }>();
+
+for (const entry of summaries) {
+  const slug = entry.id.split('/')[0];
+  const existing = authorMap.get(slug);
+  if (existing) {
+    existing.count++;
+  } else {
+    authorMap.set(slug, { name: entry.data.author, count: 1 });
+  }
+}
+
+const authors = [...authorMap.entries()]
+  .map(([slug, { name, count }]) => ({ slug, name, count }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+---
+
+<BaseLayout title="Authors">
+  <h1>Authors</h1>
+  <p>{authors.length} authors with {summaries.length} summaries.</p>
+
+  <ul class="author-list">
+    {authors.map((author) => (
+      <li>
+        <a href={`/author/${author.slug}`}>
+          {author.name}
+        </a>
+        <span class="count">{author.count} {author.count === 1 ? 'summary' : 'summaries'}</span>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .author-list {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-lg);
+    display: grid;
+    gap: var(--space-md);
+  }
+
+  .author-list li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+  }
+
+  .author-list a {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .count {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+  }
+</style>

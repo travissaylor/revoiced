@@ -1,0 +1,86 @@
+---
+import type { GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export const getStaticPaths = (async () => {
+  const summaries = await getCollection('summaries');
+
+  // Group entries by author slug
+  const authorMap = new Map<string, { name: string; entries: typeof summaries }>();
+
+  for (const entry of summaries) {
+    const slug = entry.id.split('/')[0];
+    const existing = authorMap.get(slug);
+    if (existing) {
+      existing.entries.push(entry);
+    } else {
+      authorMap.set(slug, { name: entry.data.author, entries: [entry] });
+    }
+  }
+
+  return [...authorMap.entries()].map(([slug, { name, entries }]) => ({
+    params: { author: slug },
+    props: { name, entries },
+  }));
+}) satisfies GetStaticPaths;
+
+const { name, entries } = Astro.props;
+
+// Sort by title
+const sorted = entries.sort((a: (typeof entries)[0], b: (typeof entries)[0]) =>
+  a.data.title.localeCompare(b.data.title),
+);
+---
+
+<BaseLayout title={name}>
+  <h1>{name}</h1>
+  <p>{sorted.length} {sorted.length === 1 ? 'summary' : 'summaries'}</p>
+
+  <div class="card-grid">
+    {sorted.map((entry: (typeof entries)[0]) => (
+      <a href={`/${entry.id}`} class="card">
+        <h2 class="card-title">{entry.data.title}</h2>
+        <p class="card-meta">
+          {entry.data.genre} &middot; {entry.data.publication_year}
+        </p>
+      </a>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+  }
+
+  .card {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: var(--space-md) var(--space-lg);
+    text-decoration: none;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    margin-top: 0;
+    margin-bottom: var(--space-xs);
+  }
+
+  .card-meta {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0;
+  }
+</style>
