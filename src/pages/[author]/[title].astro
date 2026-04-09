@@ -136,16 +136,16 @@ const { title, author, genre, publication_year } = entry.data;
   <body>
     <div class="progress-bar" id="progress-bar"></div>
     <div class="container">
-      <a href="/" class="back-link">&larr; All summaries</a>
+      <a href="/" class="back-link" data-pagefind-ignore>&larr; All summaries</a>
       <header>
-        <h1>{title}</h1>
+        <h1 data-pagefind-weight="10" data-pagefind-meta="title">{title}</h1>
         <div class="meta">
-          <span>by {author}</span>
+          <span data-pagefind-weight="10" data-pagefind-meta="author">by {author}</span>
           <span>{genre}</span>
           <span>{publication_year}</span>
         </div>
       </header>
-      <article class="prose">
+      <article class="prose" data-pagefind-body>
         <Content />
       </article>
     </div>

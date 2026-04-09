@@ -14,7 +14,7 @@ const pageTitle = title === 'Revoiced' ? title : `${title} — Revoiced`;
     <title>{pageTitle}</title>
   </head>
   <body>
-    <header class="site-header">
+    <header class="site-header" data-pagefind-ignore>
       <div class="header-inner">
         <a href="/" class="site-name">Revoiced</a>
         <nav class="site-nav">
@@ -23,16 +23,27 @@ const pageTitle = title === 'Revoiced' ? title : `${title} — Revoiced`;
           <a href="/recent">Recent</a>
         </nav>
         <div class="search-bar">
-          <input type="search" placeholder="Search summaries…" disabled aria-label="Search summaries" />
+          <div id="search"></div>
         </div>
       </div>
     </header>
+    <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+    <script is:inline src="/pagefind/pagefind-ui.js"></script>
+    <script is:inline>
+      window.addEventListener('DOMContentLoaded', function() {
+        new PagefindUI({
+          element: '#search',
+          showSubResults: true,
+          showImages: false,
+        });
+      });
+    </script>
 
     <main>
       <slot />
     </main>
 
-    <footer class="site-footer">
+    <footer class="site-footer" data-pagefind-ignore>
       <p>Revoiced — books re-told in the author's voice</p>
     </footer>
   </body>
