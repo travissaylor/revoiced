@@ -2,6 +2,7 @@
 // Cache-on-visit strategy: network-first for visited pages, app shell cached on install
 
 const CACHE_NAME = 'revoiced-v1';
+const PAGEFIND_CACHE_NAME = 'revoiced-pagefind-v1';
 const BASE = '/revoiced/';
 
 // App shell resources cached on install
@@ -25,7 +26,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME)
+          .filter((key) => key !== CACHE_NAME && key !== PAGEFIND_CACHE_NAME)
           .map((key) => caches.delete(key))
       )
     ).then(() => self.clients.claim())
@@ -41,8 +42,22 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   if (!url.pathname.startsWith(BASE)) return;
 
-  // Skip pagefind requests (handled by US-005)
-  if (url.pathname.includes('/pagefind/')) return;
+  // Pagefind requests: cache-first (files are content-addressed and don't change)
+  if (url.pathname.includes('/pagefind/')) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (request.method === 'GET' && response.ok) {
+            const clone = response.clone();
+            caches.open(PAGEFIND_CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
 
   event.respondWith(
     fetch(request)
