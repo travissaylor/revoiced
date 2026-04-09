@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "prebuild": "node scripts/generate-icons.mjs",
     "build": "astro build",
     "postbuild": "pagefind --site dist",
     "preview": "astro preview",
@@ -13,6 +15,7 @@
   "dependencies": {
     "@astrojs/check": "^0.9.8",
     "astro": "^6.1.5",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
