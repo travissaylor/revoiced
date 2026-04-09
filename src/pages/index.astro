@@ -1,17 +1,11 @@
 ---
 import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
 const summaries = await getCollection('summaries');
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Book Summaries</title>
-  </head>
-  <body>
-    <h1>Book Summaries</h1>
-    <p>{summaries.length} summaries available.</p>
-  </body>
-</html>
+<BaseLayout title="Revoiced">
+  <h1>Book Summaries</h1>
+  <p>{summaries.length} summaries available.</p>
+</BaseLayout>
