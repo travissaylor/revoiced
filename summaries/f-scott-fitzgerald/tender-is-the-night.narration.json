@@ -1,0 +1,54 @@
+{
+  "cast": {
+    "narrator": {
+      "voice": "Sulafat",
+      "style": "Narrate as a classic literary audiobook reader with a warm, measured, elegiac delivery — unhurried pacing, gentle irony, and a quiet undercurrent of melancholy"
+    }
+  },
+  "paragraphs": [
+    { "para": 1, "direction": "Luminous, unhurried scene-setting — golden and serene, savoring the light and the money and the sea" },
+    { "para": 2, "direction": "Luminous, unhurried scene-setting — golden and serene, savoring the light and the money and the sea" },
+    { "para": 3, "direction": "Luminous, unhurried scene-setting — golden and serene, savoring the light and the money and the sea" },
+    { "para": 4, "direction": "Warm and quietly dazzled — admiration for effortless charm, with a faint shadow of foreboding beneath the sparkle" },
+    { "para": 5, "direction": "Warm and quietly dazzled — admiration for effortless charm, with a faint shadow of foreboding beneath the sparkle" },
+    { "para": 6, "direction": "Warm and quietly dazzled — admiration for effortless charm, with a faint shadow of foreboding beneath the sparkle" },
+    { "para": 7, "direction": "Warm and quietly dazzled — admiration for effortless charm, with a faint shadow of foreboding beneath the sparkle" },
+    { "para": 8, "direction": "Wry and knowing — gossip, glitter, and irony, with unease creeping in at the edges" },
+    { "para": 9, "direction": "Wry and knowing — gossip, glitter, and irony, with unease creeping in at the edges" },
+    { "para": 10, "direction": "Rapt and tender — an exquisite evening, beautiful because it cannot last" },
+    { "para": 11, "direction": "Mounting disquiet — the bright surface cracking; controlled urgency, darkness showing through" },
+    { "para": 12, "direction": "Mounting disquiet — the bright surface cracking; controlled urgency, darkness showing through" },
+    { "para": 13, "direction": "Mounting disquiet — the bright surface cracking; controlled urgency, darkness showing through" },
+    { "para": 14, "direction": "A grave turn — cooler and more measured, a clinical past recounted with restrained sorrow" },
+    { "para": 15, "direction": "A grave turn — cooler and more measured, a clinical past recounted with restrained sorrow" },
+    { "para": 16, "direction": "Intimate foreboding — tenderness shadowed by warning, the trap closing gently and inevitably" },
+    { "para": 17, "direction": "Intimate foreboding — tenderness shadowed by warning, the trap closing gently and inevitably" },
+    { "para": 18, "direction": "Intimate foreboding — tenderness shadowed by warning, the trap closing gently and inevitably" },
+    { "para": 19, "direction": "Cold clarity hardening into dread — matter-of-fact, the strain tightening" },
+    { "para": 20, "direction": "Cold clarity hardening into dread — matter-of-fact, the strain tightening" },
+    { "para": 21, "direction": "Cold clarity hardening into dread — matter-of-fact, the strain tightening" },
+    { "para": 22, "direction": "Weary and aching — long erosion told with quiet compassion, grief settling in" },
+    { "para": 23, "direction": "Weary and aching — long erosion told with quiet compassion, grief settling in" },
+    { "para": 24, "direction": "Hollow and mournful — disillusion deepening, the descent gathering weight" },
+    { "para": 25, "direction": "Hollow and mournful — disillusion deepening, the descent gathering weight" },
+    { "para": 26, "direction": "Hollow and mournful — disillusion deepening, the descent gathering weight" },
+    { "para": 27, "direction": "Bleak and unsparing — dignity stripping away, told with pained restraint" },
+    { "para": 28, "direction": "Bleak and unsparing — dignity stripping away, told with pained restraint" },
+    { "para": 29, "direction": "Bleak and unsparing — dignity stripping away, told with pained restraint" },
+    { "para": 30, "direction": "A bittersweet brightening — vitality returning to Nicole even as it drains from Dick" },
+    { "para": 31, "direction": "A bittersweet brightening — vitality returning to Nicole even as it drains from Dick" },
+    { "para": 32, "direction": "Tender and grave — a quiet parting; benediction and loss" },
+    {
+      "para": 33,
+      "direction": "Tender and grave — a quiet parting; benediction and loss",
+      "text": "[softly] Dick made the sign of the cross over the beach before he left -- a small, private benediction that no one saw or, if they saw, did not understand. It was the gesture of a priest consecrating ground he will never visit again, and it contained within it all the tenderness and all the loss that the word goodbye is too small to hold."
+    },
+    { "para": 34, "direction": "Subdued and distant — a slow disappearance told in a hush" },
+    { "para": 35, "direction": "Subdued and distant — a slow disappearance told in a hush" },
+    { "para": 36, "direction": "Elegiac summation — sorrowful and dignified, carrying quiet moral weight" },
+    { "para": 37, "direction": "Elegiac summation — sorrowful and dignified, carrying quiet moral weight" },
+    { "para": 38, "direction": "A final elegy — soft, wistful, gradually slowing, fading toward stillness" },
+    { "para": 39, "direction": "A final elegy — soft, wistful, gradually slowing, fading toward stillness" },
+    { "para": 40, "direction": "A final elegy — soft, wistful, gradually slowing, fading toward stillness" }
+  ]
+}

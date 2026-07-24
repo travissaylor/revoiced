@@ -4,6 +4,9 @@ author: "F. Scott Fitzgerald"
 genre: "Tragedy"
 publication_year: 1934
 summary_generated: 2026-04-09
+narration:
+  voice: "Sulafat"
+  style: "Narrate as a classic literary audiobook reader with a warm, measured, elegiac delivery — unhurried pacing, gentle irony, and a quiet undercurrent of melancholy that deepens as the story falls toward its end"
 ---
 
 On the pleasant shore of the French Riviera, about halfway between Marseilles and the Italian border, stood a large, proud, rose-colored hotel. Deferential palms cooled its flushed facade, and before it stretched a short dazzling beach. In the early morning the distant image of Cannes, the pink and cream of old fortifications, the purple Alp that bounded Italy, were cast across the water and lay quavering in the ripples and rings sent up by sea-plants through the clear shallows. It was into this world, this bright arrangement of land and sea and money, that Rosemary Hoyt arrived in the summer of 1925, nearly eighteen years old, astonishingly beautiful, with the dew still on her.
