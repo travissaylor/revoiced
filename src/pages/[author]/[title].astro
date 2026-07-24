@@ -1,4 +1,6 @@
 ---
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -18,6 +20,8 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 const { title, author, genre, publication_year } = entry.data;
 const base = import.meta.env.BASE_URL;
+const hasAudio = existsSync(path.join(process.cwd(), 'public', 'audio', `${entry.id}.mp3`));
+const audioUrl = `${base}audio/${entry.id}.mp3`;
 ---
 
 <html lang="en">
@@ -96,6 +100,30 @@ const base = import.meta.env.BASE_URL;
         white-space: nowrap;
       }
 
+      .audio-player {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 2.5rem;
+        padding: 1rem 1.25rem;
+        background: #f1f1ec;
+        border: 1px solid #e5e5e0;
+        border-radius: 8px;
+      }
+
+      .audio-label {
+        font-family: system-ui, -apple-system, sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #6b7280;
+      }
+
+      .audio-player audio {
+        width: 100%;
+      }
+
       .prose {
         font-size: 1.125rem;
       }
@@ -146,6 +174,12 @@ const base = import.meta.env.BASE_URL;
           <span>{publication_year}</span>
         </div>
       </header>
+      {hasAudio && (
+        <div class="audio-player" data-pagefind-ignore>
+          <span class="audio-label">Listen to this summary</span>
+          <audio controls preload="metadata" src={audioUrl}></audio>
+        </div>
+      )}
       <article class="prose" data-pagefind-body>
         <Content />
       </article>

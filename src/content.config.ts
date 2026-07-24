@@ -9,6 +9,14 @@ const summaries = defineCollection({
     genre: z.string(),
     publication_year: z.number(),
     summary_generated: z.coerce.date(),
+    // Per-book TTS narration config used by scripts/generate-audio.mjs.
+    // voice: a Gemini prebuilt voice name; style: a delivery directive.
+    narration: z
+      .object({
+        voice: z.string(),
+        style: z.string().optional(),
+      })
+      .optional(),
   }),
 });
 
