@@ -36,7 +36,7 @@ In both cases, the author's voice is paramount.
 
 ### 4. Write the Summary
 
-Write a **5,000-7,000 word** continuous prose summary with these requirements:
+Write a **5,000-7,000 word** continuous prose summary with these requirements. The word range is a hard limit: a file over 7,000 words (or under 5,000) is a failed task and must be revised before you finish.
 
 **Author Voice (Critical):**
 - Write in full immersion of the author's style — this is the entire point
@@ -46,6 +46,12 @@ Write a **5,000-7,000 word** continuous prose summary with these requirements:
 - If it's Toni Morrison: lyrical density, shifting perspectives, weighted silences
 - Study what you found in research and channel it completely
 - The reader should feel like they are reading the actual author's words
+
+**Original prose only (hard rule):**
+- This is a retelling in the author's voice, written by you. It is NOT a reproduction, abridgement, or lightly edited copy of the book.
+- Never copy sentences or passages from the book, whether from memory or from research results. Every sentence must be your own construction.
+- Short iconic lines (a slogan, a motto, a famous phrase under ~10 words) may appear at most once each, in quotation marks.
+- Reproducing the book's text is a copyright violation and a failed task, no matter how good it reads.
 
 **Content:**
 - Cover the full scope of the book — all major plot points, characters, themes, or arguments
@@ -83,3 +89,11 @@ Where:
 Create the author directory if it doesn't exist.
 
 Write the file directly — do not display the full summary in the conversation.
+
+### 6. Verify Before Finishing
+
+Run these checks and fix any failure:
+- `wc -w summaries/{author-slug}/{title-slug}.md` is between roughly 5,100 and 7,100 (frontmatter adds ~50 words).
+- The file has no `#` headers, no bullet points, and no chapter markers.
+- The book's actual opening sentence and closing sentence do not appear in the file. If either does, you have reproduced the text: rewrite the affected passages in your own words.
+- Frontmatter has all five fields and today's date.
