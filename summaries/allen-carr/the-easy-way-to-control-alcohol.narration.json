@@ -1,0 +1,375 @@
+{
+  "cast": {
+    "narrator": {
+      "voice": "Charon",
+      "style": "Narrate as a plain-spoken, warm British former accountant talking straight to one reader across a table — conversational, confident, gently persuasive, with a wry twinkle of humour and the conviction of a man who escaped the trap himself"
+    },
+    "John": {
+      "voice": "Schedar",
+      "style": "A smartly dressed middle-aged businessman at a recovery meeting: solemn, practised, a little weary"
+    },
+    "Relative": {
+      "voice": "Kore",
+      "style": "An exasperated, well-meaning spouse or relative: clipped, impatient, scolding"
+    },
+    "Visitor": {
+      "voice": "Puck",
+      "style": "A cheerful, oblivious holidaymaker shouting breezily from sunny clifftops"
+    },
+    "Dantès": {
+      "voice": "Algenib",
+      "style": "A gravelly, worn prisoner fresh from the sea, mock-mournful and theatrical"
+    },
+    "Drinker": {
+      "voice": "Zubenelgenubi",
+      "style": "A casual, self-assured everyday drinker making excuses: breezy, defensive, utterly convinced"
+    },
+    "Big Monster": {
+      "voice": "Enceladus",
+      "style": "A sly, purring, self-satisfied inner voice — seductive and smug"
+    },
+    "Waiter": {
+      "voice": "Iapetus",
+      "style": "An obsequious fine-dining waiter: hushed, polished, bowing deference"
+    },
+    "Best Man": {
+      "voice": "Sadachbia",
+      "style": "A jovial best man giving a wedding toast, booming and convivial"
+    },
+    "Bar Friend": {
+      "voice": "Fenrir",
+      "style": "A boisterous, slightly tipsy mate at the bar, cajoling and teasing"
+    }
+  },
+  "paragraphs": [
+    {
+      "para": 1,
+      "direction": "Confident, inviting opening — a friendly challenge to the sceptical listener, building quiet excitement about the escape ahead"
+    },
+    {
+      "para": 2,
+      "direction": "Candid and reassuring — letting the listener in on a friendly secret, patient and kind"
+    },
+    {
+      "para": 3,
+      "direction": "Candid and reassuring — letting the listener in on a friendly secret, patient and kind"
+    },
+    {
+      "para": 4,
+      "direction": "Brisk, incredulous, gently mocking — exposing absurd labels with an accountant's plain common sense",
+      "parts": [
+        {
+          "text": "Let us begin by demolishing the single biggest piece of nonsense peddled by the medical establishment, the media, and conventional recovery organizations: the arbitrary dividing line between the \"normal drinker\" and the \"alcoholic.\" Society loves to split the drinking population into two entirely separate species. On one side of the fence, we are told, sit the vast majority of sensible, social drinkers who enjoy a tipple for the flavour or conviviality and could take it or leave it at a moment's notice. On the other side lurk the \"alcoholics\"—pitiful, genetically flawed creatures afflicted with a permanent, incurable disease, doomed either to drink themselves into the gutter or to spend the rest of their existence white-knuckling their sobriety one agonizing day at a time. Just look at the sheer absurdity of that distinction. Go into any city centre on a Friday night and watch the so-called \"normal social drinkers\" staggering out of bars at midnight, shouting at strangers, vomiting in the gutter, and waking up on Sunday morning with a splitting skull swearing they will never touch a drop again. Those people would be mortally offended if you called them alcoholics! Meanwhile, walk into a church hall down the road where a smartly dressed businessman who hasn't touched a drop of liquor in fifteen years stands up in front of strangers and solemnly announces,"
+        },
+        {
+          "speaker": "John",
+          "text": "\"Hello, my name is John, and I am an alcoholic.\"",
+          "direction": "Solemn, ritual confession"
+        },
+        {
+          "text": "How can a man who gets legless every weekend be called a normal drinker in control of his habit, while a man who hasn't swallowed alcohol in a decade and a half is branded an incurable alcoholic for life?"
+        }
+      ]
+    },
+    {
+      "para": 5,
+      "direction": "Brisk, incredulous, gently mocking — exposing absurd labels with an accountant's plain common sense"
+    },
+    {
+      "para": 6,
+      "direction": "Liberating clarity, then a storyteller's lean-in as the parable approaches"
+    },
+    {
+      "para": 7,
+      "direction": "Nature-documentary storytelling — sunny, easy, and curious, savouring the bright scene",
+      "parts": [
+        {
+          "text": "Imagine a pitcher plant sitting in a tropical forest. It is a hollow, vase-shaped vessel with a wide, brightly coloured rim that secretes a sweet-smelling nectar, while at the bottom lies a deep pool of acidic liquid filled with the decaying remains of dead flies, wasps, and beetles. Now imagine a healthy, vigorous fly buzzing through the forest in the sunshine. It smells the nectar, sees dozens of other flies happily feeding along the broad rim of the plant, and lands to take a sip. Does that fly feel trapped? Not in the slightest! It has powerful wings, sharp eyes, and complete freedom of movement; it knows it can buzz off into the blue sky whenever it pleases."
+        },
+        {
+          "text": "What the fly does not notice is that the inner wall of the pitcher plant slopes almost imperceptibly downward, coated with a microscopic layer of loose, waxy flakes. As the fly sips the nectar, its feet slide just a fraction of a millimeter down the gentle incline. Still, there is no cause for alarm; it flies away, returns the next day for another taste, and ventures just a tiny fraction deeper where the nectar seems fresher. Over days and weeks, two things happen simultaneously: the slope grows gradually steeper, lined with fine downward-pointing bristles that make climbing backward impossible, and the fly's own body grows heavy, sticky, and sluggish from the narcotic sap. By the time the insect finally looks down, sees the floating corpses of the insects that went before it in the digestive soup below, and tries to beat its wings to escape, it realizes to its horror that its wings are glued together and the walls are sheer cliffs.",
+          "direction": "The storyteller grows slower and more serious, quietly building to a grim realisation"
+        }
+      ]
+    },
+    {
+      "para": 8,
+      "direction": "Earnest and pointed — driving the parable home with mounting urgency"
+    },
+    {
+      "para": 9,
+      "direction": "Vivid, dramatic storytelling — frustration at useless advice turning to bright promise as the combination lock is revealed",
+      "parts": [
+        {
+          "text": "Now imagine how a trapped drinker feels when well-meaning family members, spouses, or doctors say,"
+        },
+        {
+          "speaker": "Relative",
+          "text": "\"Look, why can't you just be sensible like everyone else? Just stop after two drinks and show a bit of backbone!\"",
+          "direction": "Exasperated, scolding"
+        },
+        {
+          "text": "To understand how maddening and useless that advice is, think of Alexandre Dumas's famous tale *The Count of Monte Cristo*, in which the innocent young sailor Edmond Dantès is cast into a pitch-black subterranean dungeon inside the island fortress of the Château d'If. Suppose a visitor stood on the sunny cliffs outside that grim granite fortress and shouted through the iron bars,"
+        },
+        {
+          "speaker": "Visitor",
+          "text": "\"Come on, Edmond, stop moping around in that damp cell! Just walk out the door and come for a stroll on the beach!\"",
+          "direction": "Breezy and clueless, calling out cheerfully"
+        },
+        {
+          "text": "Dantès is surrounded by stone walls six feet thick and bolted behind iron doors. Telling a trapped drinker to \"just moderate\" or \"use willpower\" shows a total failure to understand the prison. Yet here is the miracle of the Easyway method: our prison is not built of six-foot granite blocks. The door of the alcohol trap is held shut by a mental combination lock. If you try to smash down a steel vault door with your bare fists—which is what the Willpower Method tries to do—you will only bruise your knuckles and collapse in defeat. But if someone hands you the exact numbers to the combination lock, a child could turn the dial with two fingers, hear the tumblers click into place, and swing the heavy door effortlessly wide open."
+        }
+      ]
+    },
+    {
+      "para": 10,
+      "direction": "Triumphant and exhilarated — the joy of escape, laughing at the idea of mourning a prison",
+      "parts": [
+        {
+          "text": "After fourteen years in that cell, when Edmond Dantès finally slits open the burial sack he has smuggled himself into, breaks the surface of the sea, and swims free under the open Mediterranean sky, what do you think he feels? Does he tread water weeping, sighing,"
+        },
+        {
+          "speaker": "Dantès",
+          "text": "\"Oh dear, I shall never get to eat mouldy bread and stare at slimy dungeon walls ever again, how deprived I am\"?",
+          "direction": "Absurdly mournful, a mock lament"
+        },
+        {
+          "text": "Of course not! He wants to shout for joy! Under conventional methods, quitting drinking is treated like a funeral. You are encouraged to view yourself as a tragic convalescent who must tiptoe through life avoiding pubs, weddings, and dinner parties, counting the days of your penance on a calendar while secretly envying the \"lucky\" people who can still knock back their gin and tonics. With our method, you do not wait ten years to feel free; you feel elated from the very moment you extinguish the desire, because you realize you haven't lost anything worth having—you have escaped from slavery."
+        }
+      ]
+    },
+    {
+      "para": 11,
+      "direction": "Curious and probing, building intrigue as the central puzzle is posed"
+    },
+    {
+      "para": 12,
+      "direction": "Wry, knowing, mock-astonished — lifting the curtain on a lifetime of propaganda"
+    },
+    {
+      "para": 13,
+      "direction": "Animated and incredulous, with good humour — appealing to the listener's honest memory of that first drink",
+      "text": "Now contrast that cultural brainwashing with the wisdom of what I call the Incredible Machine—your own human body. Three billion years of evolution have honed your body into the most sophisticated survival instrument in the universe. Mother Nature gave you five senses and an infallible system of early-warning instincts specifically designed to keep you alive and tell the difference between nourishing food and lethal poison. When you smell fresh bread baking or ripe fruit on a tree, your mouth waters because your body recognizes wholesome fuel. When you smell rotting carrion or chemical solvent, your nostrils wrinkle in disgust. And what happened the very first time you ever put a glass of beer, wine, or spirits to your lips? Be completely honest with yourself! Did your taste buds dance with delight? Not a chance! Your first mouthful of beer tasted like bitter, stagnant soap suds; your first sip of dry wine tasted like sour vinegar; your first taste of neat whiskey burned your throat like industrial paint stripper. Your Incredible Machine was ringing every alarm bell it possessed, screaming at you: [urgent] *Spit this out! You are swallowing poison!*"
+    },
+    {
+      "para": 14,
+      "direction": "Animated and incredulous, with good humour — appealing to the listener's honest memory of that first drink",
+      "parts": [
+        {
+          "text": "And what happened the first time you ignored your taste buds and swallowed enough of that poison to feel its chemical effect on your nervous system? You became dizzy, your vision blurred, your speech slurred, your coordination collapsed, the room began to spin, and if you drank a little more, your stomach contracted violently so you would vomit the toxin out onto the pavement before it could kill you. If you ate a plate of wild berries in the woods and within an hour you couldn't walk straight, the room spun round, you threw up violently, and the next morning you woke up with a blinding headache and nausea, would you say,"
+        },
+        {
+          "speaker": "Drinker",
+          "text": "\"What marvellous berries! I can't wait until Friday night so I can eat another two pounds of them\"?",
+          "direction": "Ridiculously delighted, oblivious"
+        },
+        {
+          "text": "You would never touch those berries again as long as you lived! Yet with alcohol, because the Big Monster of peer pressure and adult brainwashing told us that drinking was sophisticated and tough, we felt ashamed of our body's natural defences. We practised, masking the foul taste with sugary lemonade, cola, lime cordial, or tonic water, forcing the poison down week after week until we finally battered our poor Incredible Machine into submission and developed what drinkers proudly call \"tolerance\" and an \"acquired taste.\""
+        }
+      ]
+    },
+    {
+      "para": 15,
+      "direction": "Clear, deliberate, revelatory — an accountant walking through the figures, slowing on the key insight"
+    },
+    {
+      "para": 16,
+      "direction": "Clear, deliberate, revelatory — an accountant walking through the figures, slowing on the key insight",
+      "parts": [
+        {
+          "text": "What happens when you pour yourself another drink? The fresh dose of alcohol temporarily numbs the withdrawal pang caused by the *previous* drink. As the tension subsides, you heave a sigh of relief, your shoulders drop, and the Big Monster in your brain says,"
+        },
+        {
+          "speaker": "Big Monster",
+          "text": "\"Ah, isn't alcohol wonderful? Look how that drink relaxed me and made me feel human again!\"",
+          "direction": "Contented sigh, smug and seductive"
+        },
+        {
+          "text": "Do you see the hoax? The drink did not relax you; it created the very agitation it just relieved! Non-drinkers do not walk around needing a chemical dose at six o'clock in the evening to feel calm and content, because they never swallowed the poison that caused the withdrawal in the first place. Using alcohol to relax or feel happy is precisely like wearing a pair of boots two sizes too small all day long for the sheer pleasure of kicking them off in the evening. For an hour after you take off the tight boots, you feel a wave of relief—not because tight boots bring comfort to the human foot, but because you have briefly stopped torturing yourself!"
+        }
+      ]
+    },
+    {
+      "para": 17,
+      "direction": "Sympathetic but firm — the grim, losing struggle of the willpower method"
+    },
+    {
+      "para": 18,
+      "direction": "Brisk, lively demolition — a cheerful prosecutor taking each excuse apart with relish",
+      "parts": [
+        {
+          "text": "Instead of fighting desires with willpower, let us systematically examine every single \"reason\" people give for drinking and expose them for what they really are: hollow excuses manufactured by addiction. Let us start with the most common claim made by so-called moderate drinkers:"
+        },
+        {
+          "speaker": "Drinker",
+          "text": "\"I only drink because I genuinely love the taste.\"",
+          "direction": "Breezy, self-assured"
+        },
+        {
+          "text": "Really? If you love the taste of beer, wine, or spirits so much, why did you have to force yourself to acquire the taste when you started? We don't have to \"acquire\" a taste for ripe strawberries, roast potatoes, or fresh peaches; they taste delicious the first time we eat them because they are genuine food. Think of the prisoner locked in solitary confinement who grows to love the harsh, grating screech of a rusty iron key turning in the lock because it means the cell door is opening. You haven't fallen in love with the taste of decaying vegetable matter and ethanol; your brain has simply been conditioned to associate the taste of the poison with the chemical relief of the Little Monster's withdrawal! If drinkers truly drank for the taste alone, why don't they drink non-alcoholic beer or non-alcoholic wine all evening with the exact same enthusiasm? Ask any beer drinker why they don't switch to alcohol-free lager and they will pull a face and say it tastes flat or pointless. Of course it feels pointless to an addict—because a trap without the drug cannot feed the Little Monster! And when you eat a delicious meal because you love the taste of the food, you stop when your stomach is full; yet when people drink alcohol, the more they swallow, the more anaesthetized their taste buds become, and the faster they pour it down. Nobody pours six bowls of custard down their throat in a single evening because they \"love the taste.\""
+        }
+      ]
+    },
+    {
+      "para": 19,
+      "direction": "Brisk, lively demolition — a cheerful prosecutor taking each excuse apart with relish",
+      "parts": [
+        {
+          "text": "What about the second great excuse:"
+        },
+        {
+          "speaker": "Drinker",
+          "text": "\"Nothing quenches a real thirst on a hot day like an ice-cold pint of beer or a chilled glass of white wine\"?",
+          "direction": "Relishing, matter-of-fact"
+        },
+        {
+          "text": "Why do you feel thirsty after mowing the lawn or playing sport on a warm afternoon? Because your body has lost water through perspiration, and your Incredible Machine is sending a clear signal that it needs pure water to rehydrate your cells. Alcohol is a chemical diuretic: it switches off the signal that tells your kidneys to hold on to water, so a good part of every drink goes straight through you, and the stronger the drink, the more water you lose! That is why, after a heavy night's drinking, you wake up at four in the morning with a tongue like leather and a raging thirst for tap water. When you drink an ice-cold lager on a hot day, the only part of that pint that quenches your thirst is the water in it; the alcohol in the glass is working *against* it, flushing water out of you and setting up the next thirst so that you order a second pint, and then a third, in a self-perpetuating cycle. What kind of madness is it to try to cure thirst with a chemical that makes your body shed water?"
+        }
+      ]
+    },
+    {
+      "para": 20,
+      "direction": "Steady and persuasive, with real compassion for the shy and the frightened"
+    },
+    {
+      "para": 21,
+      "direction": "Steady and persuasive, with real compassion for the shy and the frightened"
+    },
+    {
+      "para": 22,
+      "direction": "Forceful and rising — the heavyweight myths knocked down, building to emphatic heights",
+      "parts": [
+        {
+          "text": "Then comes the heavyweight champion of all excuses:"
+        },
+        {
+          "speaker": "Drinker",
+          "text": "\"Alcohol steadies my nerves, relieves my stress, and helps me unwind after a hard day.\"",
+          "direction": "Weary, defensive, utterly sincere"
+        },
+        {
+          "text": "Suppose you have genuine stress in your life—a demanding boss, a mortgage to pay, children to look after, a car that needs repairing. When you pour two or three large drinks at the end of the day, does the ethanol in that glass pay your mortgage, fix your gearbox, or solve the problem at the office? Not by a single penny! All it does is chemically bludgeon your brain for a few hours so that you temporarily forget the problem exists, rendering you incapable of taking constructive action. Worse still, what happens the next morning when the anaesthetic wears off? The exact same problems are still sitting on your doorstep waiting for you—except now you have to face them with a depleted bank account, a sluggish body, a dehydrated brain, a guilty conscience, and nerves that are chemically frayed by alcohol withdrawal! Alcohol does not relieve stress; it manufactures stress on an industrial scale. A non-drinker finishes a tough day at work, eats a good meal, talks with their family, sleeps deeply, and wakes up refreshed and calm. The drinker spends every afternoon sliding into mild chemical withdrawal, mistakes that withdrawal for \"work stress,\" uses poison to numb it at night, sleeps poorly while their liver works overtime to process toxins, and wakes up exhausted, trapped on a hamster wheel of their own making."
+        }
+      ]
+    },
+    {
+      "para": 23,
+      "direction": "Forceful and rising — the heavyweight myths knocked down, building to emphatic heights",
+      "parts": [
+        {
+          "text": "What about boredom?"
+        },
+        {
+          "speaker": "Drinker",
+          "text": "\"Life would be so dull and monotonous without a drink; alcohol takes the edge off boredom.\"",
+          "direction": "Flat, a touch sulky"
+        },
+        {
+          "text": "Alcohol is a central nervous system depressant—a chemical cousin of chloroform and ether. How can a chemical depressant that slows down your brain waves, dulls your senses, and drains your physical energy possibly make life *more* exciting? It doesn't! What alcohol actually does is numb your mind to such a degree that you no longer notice how bored you are. Have you ever walked into a pub or a cocktail party stone-cold sober at ten-thirty at night? Within fifteen minutes you realize why everyone in the room needs to be half-poisoned: the noise is deafening, the air is stale, and people are talking complete drivel! When you are sober, if you are doing something genuinely boring, your brain tells you that you are bored so that you get up and do something interesting, creative, or rewarding instead. When you drink, you can sit on the same barstool night after night, wasting the precious years of your one and only life in a mental fog, believing you are \"enjoying yourself\" simply because you have anaesthetized your capacity to care. If you ever doubt that human beings are designed for natural joy without chemical poisons, just watch a group of eight-year-old children at a birthday party: they haven't had a drop of gin or champagne, yet they are running around on water and orange squash, shrieking with laughter, bursting with energy, completely absorbed in the thrill of being alive—while their parents sit slumped around the table needing fermented poison just to muster a smile!"
+        }
+      ]
+    },
+    {
+      "para": 24,
+      "direction": "Warm, direct, myth-busting — reassuring the doubting reader that they are not weak",
+      "parts": [
+        {
+          "text": "At this point in the inquiry, many intelligent readers nod in agreement with every logical point I have made, yet still harbour a lingering doubt based on the myth of the \"addictive personality.\" They think:"
+        },
+        {
+          "speaker": "Drinker",
+          "text": "*That is all very well, Allen, for heavy drinkers like you were, but look at my neighbour Harry—he has just one or two drinks whenever he feels like it and never gets into trouble. Why can't I be like him?*",
+          "direction": "Doubtful and a little wistful, thinking aloud"
+        },
+        {
+          "text": "First, let us bury the idea that falling into the alcohol trap is a sign of weak willpower or an inferior personality. In all my years running clinics, who do you think were the fastest to slide down the pitcher plant? Not timid weaklings, but strong-willed, ambitious, fiercely independent high achievers—surgeons, barristers, company directors, athletes, and tough manual workers. Because strong-willed people are conditioned never to admit defeat, when they take their first foul-tasting pint or shot of whiskey and feel sick, they refuse to look weak in front of their peers; they grit their teeth and master the habit. When they work twelve-hour days under high pressure, they play just as hard, using their strong constitution to shrug off hangovers that would flatten a weaker person, marching deeper and deeper into the pitcher plant precisely because they are so tough and determined."
+        }
+      ]
+    },
+    {
+      "para": 25,
+      "direction": "Warm, direct, myth-busting — reassuring the doubting reader that they are not weak"
+    },
+    {
+      "para": 26,
+      "direction": "Impassioned, almost pleading — rationing as exquisite self-torture, lifting to effortless freedom at the end"
+    },
+    {
+      "para": 27,
+      "direction": "Theatrical and playful, savouring the satire before landing on blunt truth",
+      "parts": [
+        {
+          "text": "To make sure the glamour of the Big Monster can never trick you again, perform a simple mental exercise with me right now. Think about how the alcohol industry uses language and theatre to disguise a sordid chemical drug as the height of human culture.",
+          "direction": "Calm and matter-of-fact, inviting the listener into a simple thought experiment"
+        },
+        {
+          "text": "If someone is addicted to heroin, they buy a filthy powder in a back alley and inject it with a needle; society looks on with horror and calls them a junkie. Yet with alcohol—which kills and ruins far more lives across the globe than heroin and cocaine combined—we wrap the poison in gold foil, embossed parchment labels, heavy crystal decanters, and centuries of snobbery. We have sommeliers in tailcoats sniffing corks, swirling red liquid around goblets, and waxing lyrical about \"notes of autumn hedgerow, saddle leather, and oak.\"",
+          "direction": "Measured, clear-eyed comparison, wry rather than heated"
+        },
+        {
+          "text": "Strip away that theatrical costume and what is sitting in the glass? Ethyl alcohol—a colourless chemical toxin produced by the excretion of yeast feeding on rotting, fermenting vegetable matter! Whenever you see a bottle of champagne, a dusty bottle of vintage claret, a frosty pint of craft beer, or a tumbler of single malt Scotch, strip off the fancy label in your mind and replace it with a single, honest word: *Devastation*. Imagine sitting in a plush restaurant while a waiter bows respectfully and asks,"
+        },
+        {
+          "speaker": "Waiter",
+          "text": "\"Would Sir or Madam care to inspect the Devastation list this evening? We have a very fine 1998 Château Devastation.\"",
+          "direction": "Hushed, reverent, perfectly polished"
+        },
+        {
+          "text": "Imagine standing at a wedding reception while the best man raises his glass and says,"
+        },
+        {
+          "speaker": "Best Man",
+          "text": "\"Ladies and gentlemen, please charge your glasses with sparkling Devastation and drink to the bride and groom—may their marriage be blessed with health and happiness, which we now celebrate by swallowing a drug that wrecks livers, fuels domestic violence, causes car crashes, bankrupts families, and destroys mental peace!\"",
+          "direction": "Jovial toast that stays cheerfully oblivious as the list grows darker"
+        },
+        {
+          "text": "Once you see the drug naked, stripped of its multi-billion-pound romantic disguise, the whole charade stops looking glamorous and starts looking ridiculous."
+        }
+      ]
+    },
+    {
+      "para": 28,
+      "direction": "Serious and responsible on the medical warning, then easing into calm reassurance and finally a grin",
+      "parts": [
+        {
+          "text": "We are now approaching the final turn of the combination lock, and there are only two lingering fears that ever hold a reader back from stepping out of the pitcher plant: the fear of withdrawal symptoms, and the fear of how they will cope at social events without a drink in their hand. First, withdrawal. Let me be absolutely clear on one point before anything else: if you drink heavily every day—whether it is spirits, wine, or beer—or if you have ever had the shakes, sweats, sickness, or hallucinations when you go without, see your doctor before you stop. Withdrawal from heavy, long-term drinking can be physically dangerous, and you should come off it under medical supervision; nothing in this method is a substitute for that.",
+          "direction": "Serious, calm, and responsible — plain, practical advice given with care"
+        },
+        {
+          "text": "But for most drinkers, what they dread as \"withdrawal\" is largely psychological panic created by the sense of deprivation. Think of the millions of ordinary drinkers who go on a week's holiday with a teetotal relative, or take a course of antibiotics, or go into hospital for a minor routine operation where alcohol isn't served for five days. Do they lie in bed screaming in agony? No! When they know they simply aren't drinking that week, they barely feel a physical twinge at all. Why, then, do those exact same people feel climb-the-walls agitation when they try to quit on a normal Tuesday night using willpower? Because their mind is screaming, *I am being deprived of my reward!*",
+          "direction": "Calm reassurance, gently reasoning with the listener"
+        },
+        {
+          "text": "When you extinguish the psychological desire first, the actual physical departure of the Little Monster is so mild it is barely noticeable—nothing more than an occasional, fleeting empty sensation that lasts a few seconds and leaves no pain behind. Better still, instead of dreading that little murmur during the first few days as the poison clears your body, greet it with a broad grin! Every time the Little Monster gives a faint twitch, say to yourself: [laughs] *Aha, starve to death, you little parasite—I am free of you at last!*",
+          "direction": "Relieved and increasingly cheerful, ending with a grin"
+        }
+      ]
+    },
+    {
+      "para": 29,
+      "direction": "Buoyant and encouraging — a friend sending you off to enjoy the party with your head held high",
+      "parts": [
+        {
+          "text": "Second, what about social occasions, restaurants, pubs, and parties? Under the Willpower Method, drinkers are often told to avoid pubs, clear every bottle out of the house in terror, and hide away from their drinking friends lest they be \"tempted.\" I tell you the exact opposite: go out and enjoy your social life right from the start! When you go to a party or a pub as a happy non-drinker, you will discover that if you genuinely enjoy the company of your friends, you will enjoy them ten times *more* when your mind is sharp, your wit is quick, and your senses are clear. And if you find after two hours that the company or the venue is unbearably tedious without a mind-numbing poison, you now have the freedom and the car keys to drive home whenever you please, sleep like a baby, and wake up on Sunday morning feeling like a million pounds while everyone else nurses a sour stomach and a throbbing head. When friends at a bar try to pressure you, saying,"
+        },
+        {
+          "speaker": "Bar Friend",
+          "text": "\"Come on, have a proper drink, don't be a spoilsport,\"",
+          "direction": "Teasing, cajoling"
+        },
+        {
+          "text": "remember the insects inside the pitcher plant! When one fly suddenly spreads its wings and flies effortlessly out of the plant into the sunshine, the flies left behind feel an uncomfortable stab of envy and insecurity. They try to pull you back onto the rim not to do you a favour, but to reassure themselves. Never say, \"I'm not allowed to drink\" or \"I'm trying to give up,\" which makes you sound like a miserable martyr. Smile warmly, order whatever refreshing non-alcoholic drink you actually enjoy, and know quietly inside your heart that if your friends understood the joy of being free, they would give their right arm to stand where you are standing."
+        }
+      ]
+    },
+    {
+      "para": 30,
+      "direction": "Slow, ceremonial, and solemn — a deliberate ritual building to a joyous release",
+      "text": "We have reached the moment to prepare for your final drink. Make this a conscious, deliberate, ceremonial break with the trap so that you know the exact hour your freedom began. Before you pour that final glass, check your mental state: you have seen through the illusion of taste, thirst, courage, stress relief, and boredom, and you see clearly that there is no such thing as \"just one drink\" on the rim of the pitcher plant. [very slow] Now pour that final glass. Look at the liquid and see it for what it truly is: *Devastation*—a colourless chemical poison dressed up by a multi-billion-pound industry to pick your pocket and steal your vitality. As you take each sip, concentrate deliberately on the harsh, acrid, burning chemical taste underneath the flavouring. And as you swallow the last drop and set the empty glass down, make a solemn, joyful vow to yourself that you will never again fall for the confidence trick, and say out loud or inside your mind: [joyful] *Yippee! I am free!*"
+    },
+    {
+      "para": 31,
+      "direction": "Warm, celebratory farewell — firm on the instructions, glowing with freedom at the close"
+    }
+  ]
+}

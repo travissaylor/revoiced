@@ -37,6 +37,8 @@ const API_URL = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 const SAMPLE_RATE = 24000; // PCM s16le mono, per the TTS model's output spec
 const MAX_CHUNK_CHARS = 2400; // ~2.5 min of speech; keeps each chunk well under drift territory
 const MAX_RETRIES = 10;
+const MAX_SAFETY_ATTEMPTS = 5; // each blocked attempt still counts against the daily quota
+const SAFETY_RETRY_MS = 3000;
 const PARA_PAUSE_MS = 300; // silence inserted between chunks at paragraph boundaries
 const INLINE_PAUSE_MS = 150; // silence at a chunk join inside a paragraph (dialogue / sentence split)
 
@@ -227,7 +229,7 @@ function extractAudioData(interaction) {
   return buffers.length ? Buffer.concat(buffers) : null;
 }
 
-async function generateChunk(input, voice, attempt = 1) {
+async function generateChunk(input, voice, attempt = 1, safetyAttempt = 1) {
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: {
@@ -252,9 +254,26 @@ async function generateChunk(input, voice, attempt = 1) {
       : Math.min(2 ** attempt * 1000, 45000);
     console.log(`    HTTP ${res.status}, retrying in ${delay / 1000}s (attempt ${attempt}/${MAX_RETRIES})...`);
     await new Promise((r) => setTimeout(r, delay));
-    return generateChunk(input, voice, attempt + 1);
+    return generateChunk(input, voice, attempt + 1, safetyAttempt);
   }
-  if (!res.ok) fail(`API error (HTTP ${res.status}): ${await res.text()}`);
+  if (!res.ok) {
+    const body = await res.text();
+    // The TTS safety filter blocks some requests intermittently (HTTP 400,
+    // "code":"safety"); the identical request often passes on a retry.
+    if (res.status === 400 && /"code"\s*:\s*"safety"/.test(body)) {
+      if (safetyAttempt >= MAX_SAFETY_ATTEMPTS) {
+        fail(
+          `Chunk blocked by the TTS safety filter ${MAX_SAFETY_ATTEMPTS} times in a row. ` +
+            'Split the passage into smaller "parts" with milder directions in the narration script, then rerun ' +
+            '(completed chunks are cached).'
+        );
+      }
+      console.log(`    blocked by safety filter, retrying (attempt ${safetyAttempt}/${MAX_SAFETY_ATTEMPTS})...`);
+      await new Promise((r) => setTimeout(r, SAFETY_RETRY_MS));
+      return generateChunk(input, voice, attempt, safetyAttempt + 1);
+    }
+    fail(`API error (HTTP ${res.status}): ${body}`);
+  }
 
   const interaction = await res.json();
   const pcm = extractAudioData(interaction);

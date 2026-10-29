@@ -131,6 +131,12 @@ Guidance:
   JSON, never the summary markdown.
 - HTTP 429s are retried automatically with backoff; persistent quota errors
   mean the key's daily preview quota is exhausted — report that to the user.
+- HTTP 400 `"code":"safety"` blocks are intermittent and retried automatically
+  (each attempt counts against the daily quota). If one chunk keeps getting
+  blocked, split that paragraph into smaller narrator `parts` at sentence
+  boundaries, each with a calmer `direction` (adjacent parts need different
+  directions or they merge back into one chunk), then rerun. Long passages
+  about drugs, corpses, or illness are the usual culprits.
 - If a voice sounds wrong for a passage, change the `direction` or recast, and
   rerun with `--force` (the cache makes this cheap — only changed chunks
   regenerate; `--force` just allows overwriting the existing MP3).
