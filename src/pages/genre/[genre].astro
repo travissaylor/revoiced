@@ -1,13 +1,14 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugify } from '../../lib/slugify';
 
 export async function getStaticPaths() {
   const summaries = await getCollection('summaries');
 
   const genreMap = new Map<string, typeof summaries>();
   for (const entry of summaries) {
-    const slug = entry.data.genre.toLowerCase().replace(/\s+/g, '-');
+    const slug = slugify(entry.data.genre);
     const list = genreMap.get(slug) ?? [];
     list.push(entry);
     genreMap.set(slug, list);
