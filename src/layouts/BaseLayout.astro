@@ -34,7 +34,7 @@ const nav = [
       <a href={base} class="wordmark">Revoiced</a>
       <nav class="site-nav" aria-label="Main">
         {nav.map((item) => (
-          <a href={item.href} aria-current={item.active ? 'page' : undefined}>{item.label}</a>
+          <a href={item.href} class={item.href === base ? 'nav-home' : undefined} aria-current={item.active ? 'page' : undefined}>{item.label}</a>
         ))}
         <button type="button" class="search-trigger" data-search-open aria-label="Search">
           <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="m13 13 4.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
@@ -45,6 +45,12 @@ const nav = [
     </header>
 
     <dialog class="search-dialog" id="search-dialog" aria-label="Search summaries" data-pagefind-ignore>
+      <div class="search-top">
+        <span>Search</span>
+        <button type="button" class="search-close" data-search-close>
+          Close <kbd aria-hidden="true">Esc</kbd>
+        </button>
+      </div>
       <div class="search-panel">
         <div id="search"></div>
         <p class="search-fallback" hidden>Search is available on the built site.</p>
@@ -63,6 +69,7 @@ const nav = [
       (function () {
         var dialog = document.getElementById('search-dialog');
         var loaded = false;
+        var opener = null;
 
         function focusInput() {
           var input = dialog.querySelector('.pagefind-ui__search-input');
@@ -93,6 +100,7 @@ const nav = [
 
         function open() {
           if (dialog.open) return;
+          opener = document.activeElement;
           dialog.showModal();
           load();
         }
@@ -102,7 +110,12 @@ const nav = [
         });
 
         dialog.addEventListener('click', function (e) {
-          if (e.target === dialog) dialog.close();
+          if (e.target === dialog || e.target.closest('[data-search-close]')) dialog.close();
+        });
+
+        dialog.addEventListener('close', function () {
+          if (opener && opener !== document.body && opener.focus) opener.focus();
+          opener = null;
         });
 
         document.addEventListener('keydown', function (e) {
@@ -299,7 +312,8 @@ const nav = [
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
     padding-block: 1.5rem;
   }
 
@@ -359,9 +373,21 @@ const nav = [
 
   @media (max-width: 560px) {
     .site-nav { gap: 1rem; }
-    .search-trigger { border: none; padding: 0.25rem; }
+    .search-trigger {
+      justify-content: center;
+      min-width: 2.25rem;
+      min-height: 2.25rem;
+      border: none;
+      padding: 0;
+    }
     .search-trigger span,
     .search-trigger kbd { display: none; }
+  }
+
+  /* The wordmark already links to the library, so drop the duplicate link
+     rather than wrapping the header onto two lines. */
+  @media (max-width: 380px) {
+    .nav-home { display: none; }
   }
 
   main {
@@ -413,6 +439,55 @@ const nav = [
     background: var(--surface);
     color: var(--text);
     box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.35);
+    overflow: auto;
+  }
+
+  .search-top {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .search-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    font: inherit;
+    font-size: 0.85rem;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .search-close:hover {
+    border-color: var(--muted);
+  }
+
+  .search-close kbd {
+    font: inherit;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  @media (hover: none) {
+    .search-close kbd { display: none; }
   }
 
   .search-dialog::backdrop {
