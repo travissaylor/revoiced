@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { slugify } from '../../lib/slugify';
 
 const summaries = await getCollection('summaries');
 
@@ -14,7 +15,7 @@ const genres = [...genreCounts.entries()]
   .sort((a, b) => a[0].localeCompare(b[0]))
   .map(([genre, count]) => ({
     name: genre,
-    slug: genre.toLowerCase().replace(/\s+/g, '-'),
+    slug: slugify(genre),
     count,
   }));
 const base = import.meta.env.BASE_URL;
