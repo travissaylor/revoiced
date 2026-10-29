@@ -1,11 +1,18 @@
 ---
 interface Props {
   title?: string;
+  description?: string;
 }
 
-const { title = 'Revoiced' } = Astro.props;
-const pageTitle = title === 'Revoiced' ? title : `${title} — Revoiced`;
+const { title, description = "Books re-told in the author's voice." } = Astro.props;
+const pageTitle = title ? `${title} — Revoiced` : 'Revoiced';
 const base = import.meta.env.BASE_URL;
+const path = Astro.url.pathname;
+const nav = [
+  { href: base, label: 'Library', active: path === base },
+  { href: `${base}author/`, label: 'Authors', active: path.startsWith(`${base}author`) },
+  { href: `${base}genre/`, label: 'Genres', active: path.startsWith(`${base}genre`) },
+];
 ---
 
 <html lang="en">
@@ -13,47 +20,114 @@ const base = import.meta.env.BASE_URL;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
+    <meta name="description" content={description} />
     <link rel="manifest" href={`${base}manifest.json`} />
-    <meta name="theme-color" content="#f0ede6" />
+    <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#171513" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link href={`${base}pagefind/pagefind-ui.css`} rel="stylesheet" />
   </head>
   <body>
+    <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header" data-pagefind-ignore>
-      <div class="header-inner">
-        <a href={base} class="site-name">Revoiced</a>
-        <nav class="site-nav">
-          <a href={`${base}author`}>Authors</a>
-          <a href={`${base}genre`}>Genres</a>
-          <a href={`${base}recent`}>Recent</a>
-        </nav>
-        <div class="search-bar">
-          <div id="search"></div>
-        </div>
-      </div>
+      <a href={base} class="wordmark">Revoiced</a>
+      <nav class="site-nav" aria-label="Main">
+        {nav.map((item) => (
+          <a href={item.href} class={item.href === base ? 'nav-home' : undefined} aria-current={item.active ? 'page' : undefined}>{item.label}</a>
+        ))}
+        <button type="button" class="search-trigger" data-search-open aria-label="Search">
+          <svg viewBox="0 0 20 20" width="15" height="15" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.75" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="m13 13 4.5 4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+          <span>Search</span>
+          <kbd>/</kbd>
+        </button>
+      </nav>
     </header>
-    <link href={`${base}pagefind/pagefind-ui.css`} rel="stylesheet" />
-    <script is:inline define:vars={{ base }}>
-      const pagefindScript = document.createElement('script');
-      pagefindScript.src = base + 'pagefind/pagefind-ui.js';
-      pagefindScript.onload = function() {
-        new PagefindUI({
-          element: '#search',
-          showSubResults: false,
-          showImages: false,
-          baseUrl: base
-        });
-      };
-      document.head.appendChild(pagefindScript);
-    </script>
 
-    <main>
+    <dialog class="search-dialog" id="search-dialog" aria-label="Search summaries" data-pagefind-ignore>
+      <div class="search-top">
+        <span>Search</span>
+        <button type="button" class="search-close" data-search-close>
+          Close <kbd aria-hidden="true">Esc</kbd>
+        </button>
+      </div>
+      <div class="search-panel">
+        <div id="search"></div>
+        <p class="search-fallback" hidden>Search is available on the built site.</p>
+      </div>
+    </dialog>
+
+    <main id="main">
       <slot />
     </main>
 
     <footer class="site-footer" data-pagefind-ignore>
-      <p>Revoiced — books re-told in the author's voice</p>
+      <p>Revoiced · books re-told in the author's voice</p>
     </footer>
+
+    <script is:inline define:vars={{ base }}>
+      (function () {
+        var dialog = document.getElementById('search-dialog');
+        var loaded = false;
+        var opener = null;
+
+        function focusInput() {
+          var input = dialog.querySelector('.pagefind-ui__search-input');
+          if (input) input.focus();
+        }
+
+        function load() {
+          if (loaded) return focusInput();
+          loaded = true;
+          var script = document.createElement('script');
+          script.src = base + 'pagefind/pagefind-ui.js';
+          script.onload = function () {
+            new PagefindUI({
+              element: '#search',
+              showSubResults: false,
+              showImages: false,
+              resetStyles: false,
+              baseUrl: base,
+              translations: { placeholder: 'Search titles, authors, and text' },
+            });
+            requestAnimationFrame(focusInput);
+          };
+          script.onerror = function () {
+            dialog.querySelector('.search-fallback').hidden = false;
+          };
+          document.head.appendChild(script);
+        }
+
+        function open() {
+          if (dialog.open) return;
+          opener = document.activeElement;
+          dialog.showModal();
+          load();
+        }
+
+        document.querySelectorAll('[data-search-open]').forEach(function (el) {
+          el.addEventListener('click', open);
+        });
+
+        dialog.addEventListener('click', function (e) {
+          if (e.target === dialog || e.target.closest('[data-search-close]')) dialog.close();
+        });
+
+        dialog.addEventListener('close', function () {
+          if (opener && opener !== document.body && opener.focus) opener.focus();
+          opener = null;
+        });
+
+        document.addEventListener('keydown', function (e) {
+          var t = e.target;
+          var typing = t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+          if ((e.key === '/' && !typing) || (e.key === 'k' && (e.metaKey || e.ctrlKey))) {
+            e.preventDefault();
+            open();
+          }
+        });
+      })();
+    </script>
     <script is:inline define:vars={{ base }}>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(base + 'sw.js', { scope: base });
@@ -132,182 +206,327 @@ const base = import.meta.env.BASE_URL;
 </html>
 
 <style is:global>
-  /* ── CSS Custom Properties for Light / Dark theming ── */
   :root {
-    --color-bg: #faf9f6;
-    --color-surface: #ffffff;
-    --color-text: #1a1a1a;
-    --color-text-muted: #555555;
-    --color-heading: #111111;
-    --color-link: #7b4b2a;
-    --color-link-hover: #5a3520;
-    --color-border: #e0dcd4;
-    --color-header-bg: #f0ede6;
-    --color-footer-bg: #f0ede6;
-    --color-search-bg: #ffffff;
-    --color-search-border: #ccc8be;
-    --color-search-placeholder: #999;
+    color-scheme: light dark;
 
-    --font-body: Georgia, 'Times New Roman', serif;
-    --font-heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --paper: #f7f4ee;
+    --surface: #fffdf9;
+    --ink: #1f1c18;
+    --text: #2e2a25;
+    --muted: #776f65;
+    --rule: #e4ded3;
+    --accent: #9a4a24;
+    --accent-soft: #9a4a2414;
 
-    --measure: 65ch;
-    --space-xs: 0.25rem;
-    --space-sm: 0.5rem;
-    --space-md: 1rem;
-    --space-lg: 2rem;
-    --space-xl: 3rem;
+    --font-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
+    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+    --page: 44rem;
+    --gutter: clamp(1.25rem, 5vw, 2rem);
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --color-bg: #1a1a1a;
-      --color-surface: #242424;
-      --color-text: #e0dcd4;
-      --color-text-muted: #a09a90;
-      --color-heading: #f0ede6;
-      --color-link: #d4a574;
-      --color-link-hover: #e8c4a0;
-      --color-border: #3a3a3a;
-      --color-header-bg: #222222;
-      --color-footer-bg: #222222;
-      --color-search-bg: #2a2a2a;
-      --color-search-border: #444444;
-      --color-search-placeholder: #777;
+      --paper: #171513;
+      --surface: #1f1c19;
+      --ink: #f1ebe2;
+      --text: #d9d2c7;
+      --muted: #988f83;
+      --rule: #2f2b27;
+      --accent: #e3a272;
+      --accent-soft: #e3a2721a;
     }
   }
 
-  /* ── Reset ── */
   *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
 
-  /* ── Base typography ── */
   html {
-    font-size: 100%;
     -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   body {
-    font-family: var(--font-body);
-    font-size: 1.125rem;
-    line-height: 1.7;
-    color: var(--color-text);
-    background-color: var(--color-bg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--paper);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-    color: var(--color-heading);
-    line-height: 1.3;
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
-  }
-
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-
-  p {
-    margin-bottom: 1em;
-    max-width: var(--measure);
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
   }
 
   a {
-    color: var(--color-link);
+    color: var(--accent);
     text-decoration: none;
   }
 
-  a:hover {
-    color: var(--color-link-hover);
-    text-decoration: underline;
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
   }
 
-  /* ── Site header ── */
-  .site-header {
-    background-color: var(--color-header-bg);
-    border-bottom: 1px solid var(--color-border);
-    padding: var(--space-md) var(--space-lg);
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 25%, transparent);
   }
 
-  .header-inner {
-    max-width: 72rem;
+  .skip-link {
+    position: absolute;
+    left: -999px;
+  }
+
+  .skip-link:focus {
+    left: var(--gutter);
+    top: 0.5rem;
+    z-index: 10;
+    background: var(--surface);
+    padding: 0.25rem 0.75rem;
+  }
+
+  /* ── Page scaffolding ── */
+  .site-header,
+  main,
+  .site-footer {
+    width: 100%;
+    max-width: calc(var(--page) + 2 * var(--gutter));
     margin: 0 auto;
+    padding-inline: var(--gutter);
+  }
+
+  .site-header {
     display: flex;
     align-items: center;
-    gap: var(--space-lg);
+    justify-content: space-between;
     flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding-block: 1.5rem;
   }
 
-  .site-name {
-    font-family: var(--font-heading);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: var(--color-heading);
-    text-decoration: none;
-  }
-
-  .site-name:hover {
-    color: var(--color-link);
-    text-decoration: none;
+  .wordmark {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 600;
+    font-style: italic;
+    color: var(--ink);
+    letter-spacing: -0.01em;
   }
 
   .site-nav {
     display: flex;
-    gap: var(--space-md);
+    align-items: center;
+    gap: 1.25rem;
+    font-size: 0.9rem;
   }
 
   .site-nav a {
-    font-family: var(--font-heading);
-    font-size: 0.95rem;
+    color: var(--muted);
+    transition: color 0.15s ease;
   }
 
-  .search-bar {
-    margin-left: auto;
+  .site-nav a:hover,
+  .site-nav a[aria-current='page'] {
+    color: var(--ink);
   }
 
-  .search-bar input {
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    padding: var(--space-xs) var(--space-sm);
-    border: 1px solid var(--color-search-border);
+  .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font: inherit;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 0.25rem 0.5rem 0.25rem 0.65rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .search-trigger:hover {
+    color: var(--ink);
+    border-color: var(--muted);
+  }
+
+  .search-trigger kbd {
+    font: inherit;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0.15rem 0.35rem;
+    border: 1px solid var(--rule);
     border-radius: 4px;
-    background: var(--color-search-bg);
-    color: var(--color-text);
-    width: 14rem;
   }
 
-  .search-bar input::placeholder {
-    color: var(--color-search-placeholder);
+  @media (max-width: 560px) {
+    .site-nav { gap: 1rem; }
+    .search-trigger {
+      justify-content: center;
+      min-width: 2.25rem;
+      min-height: 2.25rem;
+      border: none;
+      padding: 0;
+    }
+    .search-trigger span,
+    .search-trigger kbd { display: none; }
   }
 
-  /* ── Main content ── */
+  /* The wordmark already links to the library, so drop the duplicate link
+     rather than wrapping the header onto two lines. */
+  @media (max-width: 380px) {
+    .nav-home { display: none; }
+  }
+
   main {
     flex: 1;
-    max-width: 72rem;
-    width: 100%;
-    margin: 0 auto;
-    padding: var(--space-lg);
+    padding-block: 2rem 4rem;
   }
 
-  /* ── Site footer ── */
   .site-footer {
-    background-color: var(--color-footer-bg);
-    border-top: 1px solid var(--color-border);
-    padding: var(--space-md) var(--space-lg);
-    text-align: center;
+    padding-block: 2rem 2.5rem;
+    border-top: 1px solid var(--rule);
   }
 
   .site-footer p {
-    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* ── Shared page elements ── */
+  .page-head {
+    margin-bottom: 2.5rem;
+  }
+
+  .page-head h1 {
+    font-size: clamp(2rem, 6vw, 2.75rem);
+  }
+
+  .page-head p {
+    margin-top: 0.5rem;
+    color: var(--muted);
+  }
+
+  .section-label {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  /* ── Search dialog (Pagefind) ── */
+  .search-dialog {
+    margin: 10vh auto auto;
+    width: min(40rem, calc(100% - 2rem));
+    max-height: 75vh;
+    border: 1px solid var(--rule);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.35);
+    overflow: auto;
+  }
+
+  .search-top {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .search-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    padding: 0 0.75rem;
+    font: inherit;
     font-size: 0.85rem;
-    color: var(--color-text-muted);
-    margin: 0 auto;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--ink);
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .search-close:hover {
+    border-color: var(--muted);
+  }
+
+  .search-close kbd {
+    font: inherit;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  @media (hover: none) {
+    .search-close kbd { display: none; }
+  }
+
+  .search-dialog::backdrop {
+    background: rgb(20 16 12 / 0.35);
+    backdrop-filter: blur(2px);
+  }
+
+  .search-panel {
+    padding: 1rem;
+  }
+
+  .search-fallback {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  #search {
+    --pagefind-ui-scale: 0.8;
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--surface);
+    --pagefind-ui-border: var(--rule);
+    --pagefind-ui-tag: var(--paper);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 8px;
+    --pagefind-ui-font: var(--font-sans);
+  }
+
+  #search .pagefind-ui__result-link {
+    font-family: var(--font-serif);
+    color: var(--ink);
+  }
+
+  #search .pagefind-ui__result-excerpt {
+    color: var(--muted);
+  }
+
+  #search mark {
+    background: var(--accent-soft);
+    color: var(--ink);
   }
 </style>

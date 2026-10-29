@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const BRAND_COLOR = '#7b4b2a';
+const BRAND_COLOR = '#9a4a24';
 const TEXT_COLOR = '#ffffff';
 const SIZES = [192, 512];
 const OUTPUT_DIR = join(import.meta.dirname, '..', 'public');
