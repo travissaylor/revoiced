@@ -1,0 +1,84 @@
+---
+import type { Book } from '../lib/books';
+
+interface Props {
+  books: Book[];
+  hide?: ('author' | 'genre')[];
+  date?: boolean;
+}
+
+const { books, hide = [], date = false } = Astro.props;
+const formatDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
+---
+
+<ul class="book-list">
+  {books.map((book) => (
+    <li data-search={`${book.title} ${book.author} ${book.genre}`.toLowerCase()}>
+      <a href={book.url} class="book">
+        <span class="book-title">{book.title}</span>
+        <span class="book-meta">
+          {!hide.includes('author') && <span>{book.author}</span>}
+          {!hide.includes('genre') && <span>{book.genre}</span>}
+          <span>{book.year}</span>
+          <span>{book.minutes} min read</span>
+          {book.hasAudio && <span class="badge">Audio</span>}
+          {date && <span>Added {formatDate(book.added)}</span>}
+        </span>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .book-list {
+    list-style: none;
+  }
+
+  .book {
+    display: block;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rule);
+    color: inherit;
+    overflow: hidden;
+  }
+
+  li:first-child .book {
+    border-top: 1px solid var(--rule);
+  }
+
+  .book-title {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    line-height: 1.35;
+    color: var(--ink);
+    transition: color 0.15s ease;
+  }
+
+  .book:hover .book-title {
+    color: var(--accent);
+  }
+
+  .book-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0.15rem 0 0 -1.1em;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* Every item gets a leading dot; the negative margin pushes the dot at the
+     start of each wrapped line outside the clipped .book box. */
+  .book-meta > span::before {
+    content: '·';
+    display: inline-block;
+    width: 1.1em;
+    text-align: center;
+  }
+
+  .badge {
+    color: var(--accent);
+  }
+</style>
