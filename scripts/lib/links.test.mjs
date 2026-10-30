@@ -10,6 +10,7 @@ const tempDirs = [];
 
 after(() => Promise.all(tempDirs.map((dir) => rm(dir, { recursive: true, force: true }))));
 
+const PAGEFIND_ENTRY = JSON.stringify({ languages: { en: { hash: 'en_abc123', wasm: 'en', page_count: 3 } } });
 const MANIFEST = JSON.stringify({ icons: [{ src: 'icon-192x192.png' }, { src: '/revoiced/icon-512x512.png' }] });
 
 async function makeDist(files) {
@@ -19,6 +20,10 @@ async function makeDist(files) {
     'index.html': '<html></html>',
     'pagefind/pagefind-ui.js': '',
     'pagefind/pagefind-ui.css': '',
+    'pagefind/pagefind.js': '',
+    'pagefind/pagefind-entry.json': PAGEFIND_ENTRY,
+    'pagefind/pagefind.en_abc123.pf_meta': '',
+    'pagefind/wasm.en.pagefind': '',
     'sw.js': '',
     'manifest.json': MANIFEST,
     'offline/index.html': '<html></html>',
@@ -53,6 +58,16 @@ describe('extractUrls', () => {
   test('ignores scripts, styles, and comments', () => {
     const html = `<script>el.setAttribute("href", "/x"); a = '<a href="/y">'</script><!-- <a href="/z"> --><style>a{}</style>`;
     assert.deepEqual(extractUrls(html), []);
+  });
+
+  test('keeps src on script tags while ignoring their bodies', () => {
+    const html = `<script src="/revoiced/a.js"></script><script type="module" src='/b.js'>import "/c.js";</script>`;
+    assert.deepEqual(extractUrls(html), ['/revoiced/a.js', '/b.js']);
+  });
+
+  test('ignores attribute-like text outside tags', () => {
+    const html = `<p>This is documentation: src="missing.png"</p><code>&lt;a href="/x"&gt; href="/y"</code><a title="a > b" href="/revoiced/ok">`;
+    assert.deepEqual(extractUrls(html), ['/revoiced/ok']);
   });
 });
 
@@ -151,6 +166,33 @@ describe('checkDist', () => {
       'missing required asset pagefind/pagefind-ui.js',
       'missing required asset sw.js',
     ]);
+  });
+
+  test('reports broken or missing-base script src', async () => {
+    const dist = await makeDist({
+      'index.html': '<script src="/revoiced/missing.js"></script><script src="/missing-base.js"></script>',
+    });
+    const { errors } = await checkDist(dist, { base: BASE });
+    assert.deepEqual(errors, [
+      'index.html: broken link /revoiced/missing.js',
+      'index.html: missing base path /missing-base.js',
+    ]);
+  });
+
+  test('requires the pagefind runtime and the index files its entry names', async () => {
+    const dist = await makeDist({ 'pagefind/pagefind.js': null, 'pagefind/wasm.en.pagefind': null });
+    const { errors } = await checkDist(dist, { base: BASE });
+    assert.deepEqual(errors.sort(), [
+      'missing required asset pagefind/pagefind.js',
+      'missing required asset pagefind/wasm.en.pagefind',
+    ]);
+  });
+
+  test('reports an empty search index', async () => {
+    const entry = JSON.stringify({ languages: { en: { hash: 'en_abc123', wasm: 'en', page_count: 0 } } });
+    const dist = await makeDist({ 'pagefind/pagefind-entry.json': entry });
+    const { errors } = await checkDist(dist, { base: BASE });
+    assert.deepEqual(errors, ['pagefind/pagefind-entry.json: search index has no pages']);
   });
 
   test('reports manifest icons that do not resolve', async () => {

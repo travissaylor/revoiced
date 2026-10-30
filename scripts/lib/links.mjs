@@ -8,12 +8,16 @@ export const DEFAULT_BASE = '/revoiced/';
 export const REQUIRED_ASSETS = [
   'pagefind/pagefind-ui.js',
   'pagefind/pagefind-ui.css',
+  'pagefind/pagefind.js',
+  'pagefind/pagefind-entry.json',
   'sw.js',
   'manifest.json',
   'offline/index.html',
 ];
 
 const URL_ATTRS = new Set(['href', 'src', 'srcset', 'poster']);
+// A start tag, allowing quoted attribute values that contain ">".
+const START_TAG = /<[a-z][^\s\/>]*(?:"[^"]*"|'[^']*'|[^'">])*>/gi;
 const SKIP_SCHEME = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 
 function decodeEntities(value) {
@@ -30,13 +34,15 @@ function attrValue(tag, name) {
 
 // Returns every URL found in href/src/srcset/poster attributes and image meta tags.
 export function extractUrls(html) {
+  // Drop script and style bodies but keep their start tags, so <script src> is still checked.
   const source = html
     .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
-    .replace(/<style\b[\s\S]*?<\/style>/gi, '');
+    .replace(/(<script\b(?:"[^"]*"|'[^']*'|[^'">])*>)[\s\S]*?<\/script>/gi, '$1')
+    .replace(/(<style\b(?:"[^"]*"|'[^']*'|[^'">])*>)[\s\S]*?<\/style>/gi, '$1');
+  const tags = source.match(START_TAG) ?? [];
   const urls = [];
 
-  for (const [, name, dq, sq] of source.matchAll(
+  for (const [, name, dq, sq] of tags.join('\n').matchAll(
     /\s([a-z-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi,
   )) {
     const attr = name.toLowerCase();
@@ -52,7 +58,7 @@ export function extractUrls(html) {
     }
   }
 
-  for (const [tag] of source.matchAll(/<meta\b[^>]*>/gi)) {
+  for (const tag of tags.filter((t) => /^<meta\b/i.test(t))) {
     const key = attrValue(tag, 'property') ?? attrValue(tag, 'name');
     if (!key || !/^(?:og|twitter):image(?::url)?$/i.test(key)) continue;
     const content = attrValue(tag, 'content');
@@ -164,6 +170,23 @@ export async function checkDist(distDir, { base = DEFAULT_BASE } = {}) {
   } catch (error) {
     // A missing manifest is already reported as a required asset.
     if (error.code !== 'ENOENT') errors.add(`manifest.json: invalid JSON (${error.message})`);
+  }
+
+  // pagefind.js loads each language's metadata and wasm by name from the entry file.
+  try {
+    const entry = JSON.parse(await readFile(join(distDir, 'pagefind/pagefind-entry.json'), 'utf8'));
+    const languages = Object.values(entry.languages ?? {});
+    if (languages.reduce((n, lang) => n + (lang.page_count ?? 0), 0) === 0) {
+      errors.add('pagefind/pagefind-entry.json: search index has no pages');
+    }
+    for (const { hash, wasm } of languages) {
+      for (const asset of [`pagefind/pagefind.${hash}.pf_meta`, `pagefind/wasm.${wasm}.pagefind`]) {
+        if (!(await isFile(join(distDir, asset)))) errors.add(`missing required asset ${asset}`);
+      }
+    }
+  } catch (error) {
+    // A missing entry file is already reported as a required asset.
+    if (error.code !== 'ENOENT') errors.add(`pagefind/pagefind-entry.json: invalid JSON (${error.message})`);
   }
 
   return { errors: [...errors], htmlFiles: htmlFiles.length, linksChecked };
