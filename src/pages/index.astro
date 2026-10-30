@@ -1,100 +1,154 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import BookList from '../components/BookList.astro';
+import { getBooks, groupBy, plural } from '../lib/books';
 
-const summaries = await getCollection('summaries');
-const sorted = summaries.sort((a, b) => a.data.title.localeCompare(b.data.title));
+const books = await getBooks();
+const authors = groupBy(books, 'author');
+const recent = [...books].sort((a, b) => b.added.getTime() - a.added.getTime()).slice(0, 3);
 const base = import.meta.env.BASE_URL;
 ---
 
-<BaseLayout title="Revoiced">
-  <section class="intro">
-    <h1>Revoiced</h1>
-    <p>Books re-told in the author's voice. Browse our collection of summaries that capture each book's essence through the distinctive style of its creator.</p>
+<BaseLayout>
+  <section class="page-head">
+    <h1>Great books, retold in their authors’ own voices.</h1>
+    <p>{plural(books.length, 'summary', 'summaries')} from {plural(authors.length, 'author')}. Each one runs about twenty minutes.</p>
   </section>
 
-  <div class="card-grid">
-    {sorted.map((entry) => (
-      <a href={`${base}${entry.id}`} class="card">
-        <h2 class="card-title">{entry.data.title}</h2>
-        <p class="card-author">{entry.data.author}</p>
-        <div class="card-meta">
-          <span class="card-genre">{entry.data.genre}</span>
-          <span class="card-year">{entry.data.publication_year}</span>
-        </div>
-      </a>
+  <section class="recent" aria-labelledby="recent-label">
+    <div class="section-row">
+      <h2 class="section-label" id="recent-label">Recently added</h2>
+      <a href={`${base}recent/`} class="more">See all</a>
+    </div>
+    <BookList books={recent} />
+  </section>
+
+  <section class="library" aria-labelledby="library-label">
+    <div class="section-row">
+      <h2 class="section-label" id="library-label">The library</h2>
+    </div>
+    <label class="filter">
+      <span class="visually-hidden">Filter by title, author, or genre</span>
+      <input type="search" id="filter" placeholder="Filter by title, author, or genre" autocomplete="off" />
+    </label>
+
+    {authors.map((group) => (
+      <div class="author-group" data-group>
+        <h3 class="author-name">
+          <a href={`${base}author/${group.slug}/`}>{group.name}</a>
+        </h3>
+        <BookList books={group.books} hide={['author']} />
+      </div>
     ))}
-  </div>
+    <p class="empty" id="filter-empty" hidden>
+      No titles match. <button type="button" data-search-open>Search the full text instead</button>
+    </p>
+  </section>
 </BaseLayout>
 
+<script>
+  const input = document.getElementById('filter') as HTMLInputElement;
+  const groups = document.querySelectorAll<HTMLElement>('[data-group]');
+  const empty = document.getElementById('filter-empty')!;
+
+  function apply() {
+    const terms = input.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    let shown = 0;
+    groups.forEach((group) => {
+      let groupShown = 0;
+      group.querySelectorAll<HTMLElement>('li[data-search]').forEach((li) => {
+        const match = terms.every((t) => li.dataset.search!.includes(t));
+        li.hidden = !match;
+        if (match) groupShown++;
+      });
+      group.hidden = groupShown === 0;
+      shown += groupShown;
+    });
+    empty.hidden = shown > 0;
+  }
+
+  input.addEventListener('input', apply);
+  apply();
+</script>
+
 <style>
-  .intro {
-    margin-bottom: var(--space-xl);
+  .page-head h1 {
+    max-width: 18ch;
   }
 
-  .intro h1 {
-    margin-top: 0;
+  .recent {
+    margin-bottom: 3.5rem;
   }
 
-  .card-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-lg);
-  }
-
-  @media (min-width: 640px) {
-    .card-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 960px) {
-    .card-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  .card {
-    display: block;
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    padding: var(--space-lg);
-    text-decoration: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .card:hover {
-    border-color: var(--color-link);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    text-decoration: none;
-  }
-
-  .card-title {
-    font-size: 1.2rem;
-    margin: 0 0 var(--space-xs);
-    color: var(--color-heading);
-  }
-
-  .card-author {
-    font-size: 0.95rem;
-    color: var(--color-text-muted);
-    margin-bottom: var(--space-md);
-  }
-
-  .card-meta {
+  .section-row {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
+    align-items: baseline;
   }
 
-  .card-genre {
-    background-color: var(--color-bg);
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: 4px;
-    font-size: 0.8rem;
+  .more {
+    font-size: 0.85rem;
+  }
+
+  .filter input {
+    width: 100%;
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .filter input::placeholder {
+    color: var(--muted);
+  }
+
+  .filter input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .author-group {
+    margin-bottom: 2.25rem;
+  }
+
+  .author-name {
+    font-family: var(--font-sans);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .author-name a {
+    color: var(--ink);
+  }
+
+  .author-name a:hover {
+    color: var(--accent);
+  }
+
+  .empty {
+    color: var(--muted);
+  }
+
+  .empty button {
+    font: inherit;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
   }
 </style>

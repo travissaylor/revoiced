@@ -1,199 +1,330 @@
 ---
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BookList from '../../components/BookList.astro';
+import { getBooks, type Book } from '../../lib/books';
 
 export async function getStaticPaths() {
-  const summaries = await getCollection('summaries');
-  return summaries.map((entry) => {
-    const parts = entry.id.split('/');
-    const author = parts[0];
-    const title = parts[1];
+  const books = await getBooks();
+  return books.map((book) => {
+    const others = books.filter((b) => b.id !== book.id);
+    const byAuthor = others.filter((b) => b.authorSlug === book.authorSlug);
+    const byGenre = others.filter((b) => b.genreSlug === book.genreSlug);
+    const [author, title] = book.id.split('/');
     return {
       params: { author, title },
-      props: { entry },
+      props: {
+        book,
+        related: byAuthor.length ? byAuthor : byGenre.length ? byGenre : others.slice(0, 3),
+        relatedLabel: byAuthor.length
+          ? `More by ${book.author}`
+          : byGenre.length
+            ? `More ${book.genre.toLowerCase()}`
+            : 'Keep reading',
+      },
     };
   });
 }
 
-const { entry } = Astro.props;
-const { Content } = await render(entry);
-const { title, author, genre, publication_year } = entry.data;
+interface Props {
+  book: Book;
+  related: Book[];
+  relatedLabel: string;
+}
+
+const { book, related, relatedLabel } = Astro.props;
+const { Content } = await render(book.entry);
 const base = import.meta.env.BASE_URL;
-const hasAudio = existsSync(path.join(process.cwd(), 'public', 'audio', `${entry.id}.mp3`));
-const audioUrl = `${base}audio/${entry.id}.mp3`;
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} by {author} — Revoiced</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<BaseLayout title={`${book.title} by ${book.author}`} description={`A summary of ${book.title}, retold in the voice of ${book.author}.`}>
+  <div class="progress" id="progress" aria-hidden="true"></div>
 
-      .progress-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 0%;
-        height: 4px;
-        background: #2563eb;
-        z-index: 1000;
-        transition: width 50ms linear;
-      }
+  <article class="summary">
+    <header class="summary-head">
+      <p class="kicker">
+        <a href={`${base}genre/${book.genreSlug}/`}>{book.genre}</a>
+        <span>{book.year}</span>
+      </p>
+      <h1 data-pagefind-weight="10" data-pagefind-meta="title">{book.title}</h1>
+      <p class="byline">
+        by <a href={`${base}author/${book.authorSlug}/`} data-pagefind-weight="10" data-pagefind-meta="author">{book.author}</a>
+      </p>
+      <p class="reading-time">{book.minutes} min read{book.hasAudio && ' · Audio available'}</p>
+    </header>
 
-      body {
-        font-family: Georgia, 'Times New Roman', serif;
-        color: #1a1a1a;
-        background: #fafaf8;
-        line-height: 1.8;
-      }
+    {book.hasAudio && (
+      <div class="player" id="player" data-pagefind-ignore>
+        <span class="player-label">Listen</span>
+        <audio controls preload="metadata" src={book.audioUrl}></audio>
+        <button type="button" class="player-close" id="player-close" aria-label="Stop and unpin player" hidden>×</button>
+      </div>
+    )}
 
-      .back-link {
-        display: inline-block;
-        padding: 1.5rem 0 0;
-        font-family: system-ui, -apple-system, sans-serif;
-        font-size: 0.875rem;
-        color: #6b7280;
-        text-decoration: none;
-      }
-
-      .back-link:hover {
-        color: #2563eb;
-      }
-
-      .container {
-        max-width: 70ch;
-        margin: 0 auto;
-        padding: 0 1.5rem 4rem;
-      }
-
-      header {
-        padding: 2rem 0 2.5rem;
-        margin-bottom: 2rem;
-        border-bottom: 1px solid #e5e5e0;
-      }
-
-      header h1 {
-        font-size: 2.25rem;
-        line-height: 1.2;
-        margin-bottom: 0.5rem;
-        color: #111;
-        letter-spacing: -0.02em;
-      }
-
-      .meta {
-        font-family: system-ui, -apple-system, sans-serif;
-        font-size: 0.9rem;
-        color: #6b7280;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem 1rem;
-      }
-
-      .meta span {
-        white-space: nowrap;
-      }
-
-      .audio-player {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-bottom: 2.5rem;
-        padding: 1rem 1.25rem;
-        background: #f1f1ec;
-        border: 1px solid #e5e5e0;
-        border-radius: 8px;
-      }
-
-      .audio-label {
-        font-family: system-ui, -apple-system, sans-serif;
-        font-size: 0.8rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: #6b7280;
-      }
-
-      .audio-player audio {
-        width: 100%;
-      }
-
-      .prose {
-        font-size: 1.125rem;
-      }
-
-      .prose :global(p) {
-        margin-bottom: 1.5em;
-        text-align: justify;
-        hyphens: auto;
-      }
-
-      .prose :global(h2) {
-        font-size: 1.5rem;
-        margin: 2em 0 0.75em;
-      }
-
-      .prose :global(h3) {
-        font-size: 1.25rem;
-        margin: 1.5em 0 0.5em;
-      }
-
-      .prose :global(blockquote) {
-        border-left: 3px solid #d1d5db;
-        padding-left: 1em;
-        margin: 1.5em 0;
-        color: #4b5563;
-        font-style: italic;
-      }
-
-      @media (max-width: 640px) {
-        header h1 {
-          font-size: 1.75rem;
-        }
-        .prose {
-          font-size: 1rem;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="progress-bar" id="progress-bar"></div>
-    <div class="container">
-      <a href={base} class="back-link" data-pagefind-ignore>&larr; All summaries</a>
-      <header>
-        <h1 data-pagefind-weight="10" data-pagefind-meta="title">{title}</h1>
-        <div class="meta">
-          <span data-pagefind-weight="10" data-pagefind-meta="author">by {author}</span>
-          <span>{genre}</span>
-          <span>{publication_year}</span>
-        </div>
-      </header>
-      {hasAudio && (
-        <div class="audio-player" data-pagefind-ignore>
-          <span class="audio-label">Listen to this summary</span>
-          <audio controls preload="metadata" src={audioUrl}></audio>
-        </div>
-      )}
-      <article class="prose" data-pagefind-body>
-        <Content />
-      </article>
+    <div class="prose" data-pagefind-body>
+      <Content />
     </div>
-    <script>
-      const bar = document.getElementById('progress-bar')!;
-      function updateProgress() {
-        const scrollTop = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-        bar.style.width = `${Math.min(progress, 100)}%`;
-      }
-      window.addEventListener('scroll', updateProgress, { passive: true });
-      updateProgress();
-    </script>
-  </body>
-</html>
+
+    <hr class="fin" />
+  </article>
+
+  {related.length > 0 && (
+    <aside class="related" data-pagefind-ignore>
+      <h2 class="section-label">{relatedLabel}</h2>
+      <BookList books={related} hide={relatedLabel.startsWith('More by') ? ['author'] : []} />
+    </aside>
+  )}
+
+  <button type="button" class="resume" id="resume" hidden data-pagefind-ignore>Resume reading</button>
+</BaseLayout>
+
+<script>
+  const bar = document.getElementById('progress')!;
+  const resume = document.getElementById('resume')!;
+  const key = `revoiced:pos:${location.pathname}`;
+
+  function ratio() {
+    const max = document.documentElement.scrollHeight - innerHeight;
+    return max > 0 ? Math.min(scrollY / max, 1) : 0;
+  }
+
+  let saveTimer: number | undefined;
+  function onScroll() {
+    const r = ratio();
+    bar.style.transform = `scaleX(${r})`;
+    if (r > 0.05) resume.hidden = true;
+    clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(() => {
+      if (r > 0.97) localStorage.removeItem(key);
+      else if (r > 0.03) localStorage.setItem(key, String(r));
+    }, 300);
+  }
+
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const saved = Number(localStorage.getItem(key));
+  if (saved > 0.03 && ratio() < 0.01) {
+    resume.textContent = `Resume reading · ${Math.round(saved * 100)}%`;
+    resume.hidden = false;
+    resume.addEventListener('click', () => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      scrollTo({ top: saved * max, behavior: 'smooth' });
+      resume.hidden = true;
+    });
+  }
+
+  // Once playback starts, keep the player in view (paused or not) so the
+  // reader can pause and resume without losing their place.
+  const player = document.getElementById('player');
+  const audio = player?.querySelector('audio');
+  const unpin = document.getElementById('player-close');
+  if (player && audio && unpin) {
+    audio.addEventListener('play', () => {
+      player.classList.add('is-pinned');
+      unpin.hidden = false;
+    });
+    unpin.addEventListener('click', () => {
+      audio.pause();
+      player.classList.remove('is-pinned');
+      unpin.hidden = true;
+    });
+  }
+</script>
+
+<style>
+  .progress {
+    position: fixed;
+    inset: 0 0 auto;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    z-index: 20;
+  }
+
+  .summary-head {
+    margin-bottom: 2.5rem;
+  }
+
+  .kicker {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .kicker span::before {
+    content: '·';
+    margin-right: 0.5rem;
+  }
+
+  .summary-head h1 {
+    margin-top: 0.75rem;
+    font-size: clamp(2.25rem, 7vw, 3.25rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+
+  .byline {
+    margin-top: 0.75rem;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--muted);
+  }
+
+  .byline a {
+    color: var(--ink);
+  }
+
+  .byline a:hover {
+    color: var(--accent);
+  }
+
+  .reading-time {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--rule);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .player {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    padding: 0.6rem 0.6rem 0.6rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    z-index: 10;
+  }
+
+  .player.is-pinned {
+    position: sticky;
+    top: 0.75rem;
+    box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .player-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .player audio {
+    flex: 1;
+    min-width: 0;
+    height: 2.25rem;
+  }
+
+  .player-close {
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    font: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .player-close:hover {
+    color: var(--ink);
+    background: var(--accent-soft);
+  }
+
+  @media (max-width: 560px) {
+    .player { padding: 0.35rem; }
+    .player-label { display: none; }
+  }
+
+  .prose {
+    font-family: var(--font-serif);
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.25rem);
+    line-height: 1.7;
+    color: var(--text);
+    max-width: 33em;
+    hyphens: auto;
+    hanging-punctuation: first;
+  }
+
+  .prose :global(p) {
+    text-wrap: pretty;
+  }
+
+  .prose :global(p + p) {
+    margin-top: 1.1em;
+  }
+
+  .prose > :global(p:first-child::first-letter) {
+    float: left;
+    font-size: 3.4em;
+    line-height: 0.85;
+    padding: 0.08em 0.1em 0 0;
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .prose :global(h2),
+  .prose :global(h3) {
+    margin: 2em 0 0.6em;
+  }
+
+  .prose :global(blockquote) {
+    margin: 1.5em 0;
+    padding-left: 1em;
+    border-left: 2px solid var(--rule);
+    font-style: italic;
+  }
+
+  .prose :global(hr) {
+    border: none;
+    margin: 2.5em 0;
+    text-align: center;
+  }
+
+  .prose :global(hr)::after {
+    content: '* * *';
+    letter-spacing: 0.5em;
+    color: var(--muted);
+  }
+
+  .fin {
+    width: 3rem;
+    margin: 3.5rem auto 4rem;
+    border: none;
+    border-top: 1px solid var(--muted);
+  }
+
+  .related {
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .resume {
+    position: fixed;
+    left: 50%;
+    bottom: 1.5rem;
+    transform: translateX(-50%);
+    font: inherit;
+    font-size: 0.9rem;
+    color: var(--paper);
+    background: var(--ink);
+    border: none;
+    border-radius: 999px;
+    padding: 0.6rem 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.4);
+  }
+</style>
