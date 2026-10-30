@@ -22,7 +22,7 @@ class Media extends EventTarget {
   pause() { this.paused = true; this.dispatchEvent(new Event('pause')); }
   play() { this.paused = false; this.ended = false; this.dispatchEvent(new Event('play')); }
 }
-function setup({ storage = new MemoryStorage(), id = 'author/book', ready = true, duration = 100, blockedGetter = false } = {}) {
+function setup({ storage = new MemoryStorage(), id = 'author/book', ready = true, duration = 100, blockedGetter = false, seekBehavior = 'accept' } = {}) {
   const window = new EventTarget();
   Object.defineProperty(window, 'localStorage', { get() {
     if (blockedGetter) throw new Error('blocked');
@@ -35,6 +35,22 @@ function setup({ storage = new MemoryStorage(), id = 'author/book', ready = true
   audio.ownerDocument = document;
   audio.readyState = ready ? 1 : 0;
   audio.duration = ready ? duration : NaN;
+  // Assignments do not synthesize browser events: each test controls their order.
+  // A media engine without seekable ranges may silently ignore an assignment.
+  if (seekBehavior === 'ignore') {
+    Object.defineProperty(audio, 'currentTime', { get: () => 0, set: () => {}, configurable: true });
+  } else if (seekBehavior === 'reject-once') {
+    let position = 0;
+    let rejected = false;
+    Object.defineProperty(audio, 'currentTime', {
+      get: () => position,
+      set(value) {
+        if (!rejected) { rejected = true; throw new Error('metadata is not seekable yet'); }
+        position = value;
+      },
+      configurable: true,
+    });
+  }
   const states = [];
   const controller = attachAudioProgress(audio, id, (state) => states.push(state));
   return { audio, window, document, storage, states, controller,
@@ -163,10 +179,178 @@ test('near the end is not completion and hidden playback keeps saving', () => {
   } finally { Date.now = originalNow; }
 });
 
-test('shortened replacement recording clamps restoration safely', () => {
+test('shortened replacement recording resets an unfinished out-of-bounds bookmark', () => {
   const storage = new MemoryStorage(); storage.setItem(key(), record(90));
   const h = setup({ storage, duration: 50 });
-  assert.equal(h.audio.currentTime, 50); assert.equal(h.states.at(-1).completed, false);
+  assert.equal(h.audio.currentTime, 0); assert.equal(h.states.at(-1).completed, false);
+});
+
+for (const completed of [false, true]) {
+  test(`saved ${completed ? 'finished' : 'resume'} state is available before metadata`, () => {
+    const storage = new MemoryStorage(); storage.setItem(key(), record(completed ? 100 : 42, completed));
+    const h = setup({ storage, ready: false });
+    assert.equal(h.audio.currentTime, 0);
+    assert.equal(h.states.at(-1).position, completed ? 100 : 42);
+    assert.equal(h.states.at(-1).duration, 100);
+    assert.equal(h.states.at(-1).completed, completed);
+    assert.equal(h.states.at(-1).restored, true);
+  });
+
+  test(`restart before metadata replaces a ${completed ? 'finished' : 'resume'} bookmark immediately`, () => {
+    const storage = new MemoryStorage(); storage.setItem(key(), record(completed ? 100 : 42, completed));
+    const h = setup({ storage, ready: false });
+    h.controller.restart();
+    assert.equal(h.saved().position, 0);
+    assert.equal(h.saved().completed, false);
+    assert.equal(h.states.at(-1).position, 0);
+    assert.equal(h.states.at(-1).completed, false);
+    emit(h.window, 'pagehide');
+    h.metadata(); finishSeek(h.audio);
+    assert.equal(h.audio.currentTime, 0);
+    assert.equal(h.audio.paused, true);
+    assert.equal(h.saved().position, 0);
+    assert.equal(h.saved().completed, false);
+  });
+}
+
+test('playing a finished book before metadata starts a fresh listen', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(100, true));
+  const h = setup({ storage, ready: false });
+  h.audio.play(); h.metadata();
+  assert.equal(h.audio.currentTime, 0);
+  assert.equal(h.audio.paused, false);
+  assert.equal(h.states.at(-1).completed, false);
+  assert.equal(h.states.at(-1).restored, false);
+  emit(h.window, 'pagehide');
+  assert.equal(h.saved().position, 0);
+  assert.equal(h.saved().completed, false);
+});
+
+for (const exit of ['pause', 'hidden', 'pagehide']) {
+  test(`user seek overrides pending restore on immediate ${exit}`, () => {
+    const storage = new MemoryStorage(); storage.setItem(key(), record(100, true));
+    const h = setup({ storage });
+    // The programmatic restore has started, but its seeked event has not arrived.
+    h.audio.seeking = true; emit(h.audio, 'seeking');
+    h.audio.currentTime = 39; emit(h.audio, 'seeking');
+    if (exit === 'pause') h.audio.pause();
+    else if (exit === 'hidden') { h.document.visibilityState = 'hidden'; emit(h.document, 'visibilitychange'); }
+    else emit(h.window, 'pagehide');
+    assert.equal(h.saved().position, 39);
+    assert.equal(h.saved().completed, false);
+    h.audio.seeking = false; emit(h.audio, 'seeked');
+    assert.equal(h.saved().position, 39);
+  });
+}
+
+for (const seekBehavior of ['accept', 'ignore']) {
+  test(`play permits saving when restore assignment is ${seekBehavior} and seeked never arrives`, () => {
+    const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+    const h = setup({ storage, seekBehavior });
+    h.audio.play();
+    // Playback advances even if the earlier seek assignment was ignored.
+    Object.defineProperty(h.audio, 'currentTime', { value: 47, writable: true, configurable: true });
+    emit(h.audio, 'timeupdate');
+    assert.equal(h.saved().position, 47);
+    h.audio.currentTime = 49; h.audio.pause();
+    assert.equal(h.saved().position, 49);
+  });
+}
+
+test('an untouched page without metadata preserves its bookmark on every exit', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+  const writes = storage.writes;
+  const h = setup({ storage, ready: false });
+  emit(h.audio, 'timeupdate'); h.audio.pause();
+  h.document.visibilityState = 'hidden'; emit(h.document, 'visibilitychange');
+  emit(h.window, 'pagehide'); h.controller.destroy();
+  assert.equal(storage.writes, writes);
+  assert.equal(h.saved().position, 42);
+});
+
+test('programmatic restoration events do not turn an untouched page into a writer', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+  const writes = storage.writes;
+  const h = setup({ storage });
+  h.audio.seeking = true; emit(h.audio, 'seeking'); emit(h.audio, 'timeupdate');
+  h.audio.pause(); emit(h.window, 'pagehide');
+  h.audio.seeking = false; emit(h.audio, 'seeked'); emit(h.audio, 'timeupdate');
+  h.controller.destroy();
+  assert.equal(storage.writes, writes);
+  assert.equal(h.saved().position, 42);
+});
+
+for (const pauseFirst of [true, false]) {
+  test(`untouched completed restore preserves the original record with pause ${pauseFirst ? 'before' : 'after'} ended`, () => {
+    const storage = new MemoryStorage(); storage.setItem(key(), record(100, true));
+    const original = storage.getItem(key());
+    const writes = storage.writes;
+    // The new duration differs, so an accidental write cannot hide behind deduplication.
+    const h = setup({ storage, duration: 80 });
+    finishSeek(h.audio);
+    h.audio.ended = true;
+    if (pauseFirst) h.audio.pause();
+    emit(h.audio, 'ended');
+    if (!pauseFirst) h.audio.pause();
+    emit(h.audio, 'timeupdate'); emit(h.window, 'pagehide'); h.controller.destroy();
+    assert.equal(storage.writes, writes);
+    assert.equal(storage.getItem(key()), original);
+    assert.equal(h.states.at(-1).completed, true);
+    assert.equal(h.states.at(-1).restored, true);
+  });
+}
+
+test('a rejected metadata seek retries when data arrives without writing an untouched bookmark', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+  const writes = storage.writes;
+  const h = setup({ storage, seekBehavior: 'reject-once' });
+  assert.equal(h.audio.currentTime, 0);
+  assert.equal(h.states.at(-1).position, 42);
+  h.audio.pause(); emit(h.window, 'pagehide');
+  assert.equal(storage.writes, writes);
+  emit(h.audio, 'loadeddata');
+  assert.equal(h.audio.currentTime, 42);
+  finishSeek(h.audio); h.controller.destroy();
+  assert.equal(storage.writes, writes);
+});
+
+test('an ignored restore seek never writes an untouched bookmark on exit', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+  const writes = storage.writes;
+  const h = setup({ storage, seekBehavior: 'ignore' });
+  assert.equal(h.audio.currentTime, 0);
+  emit(h.audio, 'timeupdate'); h.audio.pause(); emit(h.window, 'pagehide'); h.controller.destroy();
+  assert.equal(storage.writes, writes);
+  assert.equal(h.saved().position, 42);
+});
+
+test('playing an unfinished book before metadata resumes and saves subsequent playback', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+  const h = setup({ storage, ready: false });
+  h.audio.play(); h.metadata(); finishSeek(h.audio);
+  assert.equal(h.audio.currentTime, 42);
+  assert.equal(h.audio.paused, false);
+  assert.equal(h.states.at(-1).restored, false);
+  h.audio.currentTime = 48; h.audio.pause();
+  assert.equal(h.saved().position, 48);
+  assert.equal(h.saved().completed, false);
+});
+
+test('BFCache pageshow alone preserves the same bookmark without writing', () => {
+  const storage = new MemoryStorage(); storage.setItem(key(), record(42));
+  const original = storage.getItem(key());
+  const writes = storage.writes;
+  const h = setup({ storage }); finishSeek(h.audio);
+  const hide = new Event('pagehide'); Object.defineProperty(hide, 'persisted', { value: true });
+  h.window.dispatchEvent(hide);
+  const show = new Event('pageshow'); Object.defineProperty(show, 'persisted', { value: true });
+  h.window.dispatchEvent(show);
+  assert.equal(h.audio.currentTime, 42);
+  assert.equal(h.states.at(-1).position, 42);
+  assert.equal(h.states.at(-1).restored, true);
+  assert.equal(h.audio.paused, true);
+  assert.equal(storage.writes, writes);
+  assert.equal(storage.getItem(key()), original);
 });
 
 for (const raw of ['{', 'null', '{}', record(-1), record(101), record(1, false, 0), JSON.stringify({version:1,position:'12',duration:100,completed:false,updatedAt:1})]) {

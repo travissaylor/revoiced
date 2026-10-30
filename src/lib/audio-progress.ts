@@ -45,6 +45,7 @@ export function attachAudioProgress(
   const window = document.defaultView!;
   const key = KEY_PREFIX + bookId;
   let storage: Storage | undefined;
+  let bookmark: SavedProgress | null = null;
   let storageAvailable = true;
   let initialized = false;
   let restoreTarget: number | null = null;
@@ -57,14 +58,21 @@ export function attachAudioProgress(
 
   try {
     storage = window.localStorage;
+    bookmark = parseProgress(storage.getItem(key));
   } catch {
     storageAvailable = false;
+  }
+  completed = bookmark?.completed ?? false;
+  restored = !!bookmark && (bookmark.position > 0 || completed);
+  if (bookmark) {
+    const { position, duration, completed } = bookmark;
+    lastSaved = JSON.stringify({ position, duration, completed });
   }
 
   function notify() {
     onChange({
-      position: Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
-      duration: Number.isFinite(audio.duration) ? audio.duration : 0,
+      position: !initialized && bookmark ? bookmark.position : Number.isFinite(audio.currentTime) ? audio.currentTime : 0,
+      duration: !initialized && bookmark ? bookmark.duration : Number.isFinite(audio.duration) ? audio.duration : 0,
       completed, storageAvailable, restored,
     });
   }
@@ -77,12 +85,7 @@ export function attachAudioProgress(
     };
   }
 
-  function save(allowSeeking = false) {
-    // Loading, restoring, or merely closing an idle tab must never replace a bookmark.
-    if (!initialized || !interacted || restoreTarget !== null || (audio.seeking && !allowSeeking) ||
-        !Number.isFinite(audio.currentTime) || !Number.isFinite(audio.duration) ||
-        audio.duration <= 0) return;
-    const progress = snapshot();
+  function persist(progress: Pick<SavedProgress, 'position' | 'duration' | 'completed'>) {
     const signature = JSON.stringify(progress);
     if (signature === lastSaved) return;
     lastSaveTime = Date.now();
@@ -98,19 +101,32 @@ export function attachAudioProgress(
     notify();
   }
 
+  function save(allowSeeking = false) {
+    // User intent owns subsequent saves, even if a restore never emits seeked.
+    // Merely loading or closing an untouched page must never replace a bookmark.
+    if (!initialized || !interacted || (audio.seeking && !allowSeeking) ||
+        !Number.isFinite(audio.currentTime) || !Number.isFinite(audio.duration) ||
+        audio.duration <= 0) return;
+    releaseSupersededRestore();
+    persist(snapshot());
+  }
+
+  function releaseSupersededRestore() {
+    // A user can move the playhead before the original restore has settled.
+    if (restoreTarget !== null && Math.abs(audio.currentTime - restoreTarget) >= 0.1) {
+      restoreTarget = null;
+      restored = false;
+      if (audio.currentTime < audio.duration) completed = false;
+    }
+  }
+
   function restore() {
     if (initialized || audio.readyState < 1 || !Number.isFinite(audio.duration) || audio.duration <= 0) return;
-    let saved: SavedProgress | null = null;
-    try {
-      saved = parseProgress(storage?.getItem(key) ?? null);
-    } catch {
-      storageAvailable = false;
-    }
-    if (saved) {
-      // A shorter replacement recording must not receive an out-of-range seek.
-      const position = Math.min(saved.position, audio.duration);
-      completed = saved.completed;
-      restored = position > 0 || completed;
+    if (bookmark) {
+      // An unfinished bookmark beyond a replacement recording cannot be resumed.
+      // Completion belongs to the book and remains until an explicit replay/restart.
+      const position = !completed && bookmark.position >= audio.duration
+        ? 0 : Math.min(bookmark.position, audio.duration);
       try {
         if (audio.currentTime !== position) {
           restoreTarget = position;
@@ -121,9 +137,9 @@ export function attachAudioProgress(
         restoreTarget = null;
         return;
       }
-      lastSaved = JSON.stringify(snapshot());
     }
     initialized = true;
+    if (interacted) save(true);
     notify();
   }
 
@@ -136,21 +152,23 @@ export function attachAudioProgress(
     listen(audio, event, restore);
   }
   listen(audio, 'play', () => {
-    restore();
     interacted = true;
     restored = false;
     if (completed) {
       completed = false;
       restoreTarget = null;
-      audio.currentTime = 0;
+      if (bookmark) bookmark = { ...bookmark, position: 0, completed: false };
+      if (initialized) audio.currentTime = 0;
     }
+    restore();
     notify();
   });
   listen(audio, 'timeupdate', () => {
     if (Date.now() - lastSaveTime >= SAVE_INTERVAL_MS) save();
   });
   listen(audio, 'seeking', () => {
-    if (restoreTarget !== null) return;
+    if (restoreTarget !== null && Math.abs(audio.currentTime - restoreTarget) < 0.1) return;
+    restoreTarget = null;
     interacted = true;
     restored = false;
     if (audio.currentTime < audio.duration) completed = false;
@@ -169,13 +187,12 @@ export function attachAudioProgress(
   });
   listen(audio, 'pause', () => {
     // Browsers can dispatch pause before ended. Preserve the terminal state in both orders.
-    if (audio.ended) completed = true;
+    if (interacted && audio.ended) completed = true;
     save(true);
     notify();
   });
   listen(audio, 'ended', () => {
-    if (!audio.ended) return;
-    interacted = true;
+    if (!interacted || !audio.ended) return;
     restored = false;
     completed = true;
     save();
@@ -190,14 +207,19 @@ export function attachAudioProgress(
 
   return {
     restart() {
-      if (!initialized) return;
       audio.pause();
       restoreTarget = null;
       interacted = true;
       completed = false;
       restored = false;
-      audio.currentTime = 0;
-      save(true);
+      if (bookmark) bookmark = { ...bookmark, position: 0, completed: false };
+      if (initialized) {
+        audio.currentTime = 0;
+        save(true);
+      } else if (bookmark) {
+        // Restart works before the network supplies metadata, using the saved duration.
+        persist({ position: 0, duration: bookmark.duration, completed: false });
+      }
       notify();
     },
     destroy() {

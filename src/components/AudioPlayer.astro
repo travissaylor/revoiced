@@ -43,7 +43,10 @@ const { bookId, src } = Astro.props;
       restart.hidden = !(state.position > 0 || state.completed);
     });
     details.hidden = false;
-    restart.addEventListener('click', () => controller.restart());
+    restart.addEventListener('click', () => {
+      audio.focus({ preventScroll: true });
+      controller.restart();
+    });
     audio.addEventListener('play', () => {
       player.classList.add('is-pinned');
       close.hidden = false;
