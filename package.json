@@ -14,7 +14,7 @@
     "typecheck": "astro check",
     "lint": "astro check",
     "validate": "node scripts/validate-content.mjs",
-    "test": "node --test \"scripts/**/*.test.mjs\"",
+    "test": "node --experimental-strip-types --test \"scripts/**/*.test.mjs\" \"tests/*.test.mjs\"",
     "check-links": "node scripts/check-links.mjs",
     "check": "pnpm typecheck && pnpm validate && pnpm test && pnpm build && pnpm check-links"
   },
