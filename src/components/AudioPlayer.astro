@@ -1,0 +1,148 @@
+---
+interface Props {
+  bookId: string;
+  src: string;
+}
+const { bookId, src } = Astro.props;
+---
+
+<div class="player" data-audio-player data-book-id={bookId} data-pagefind-ignore>
+  <div class="player-controls">
+    <span class="player-label">Listen</span>
+    <audio controls preload="metadata" src={src}></audio>
+    <button type="button" class="player-close" aria-label="Stop and unpin player" hidden>×</button>
+  </div>
+  <div class="player-details" hidden>
+    <p class="player-status" aria-live="off"></p>
+    <button type="button" class="player-restart" hidden>Start over</button>
+  </div>
+</div>
+
+<script>
+  import { attachAudioProgress } from '../lib/audio-progress';
+
+  function timestamp(position: number) {
+    const seconds = Math.floor(position);
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-audio-player]').forEach((player) => {
+    const audio = player.querySelector('audio')!;
+    const close = player.querySelector<HTMLButtonElement>('.player-close')!;
+    const details = player.querySelector<HTMLElement>('.player-details')!;
+    const status = player.querySelector<HTMLElement>('.player-status')!;
+    const restart = player.querySelector<HTMLButtonElement>('.player-restart')!;
+    const controller = attachAudioProgress(audio, player.dataset.bookId!, (state) => {
+      status.textContent = !state.storageAvailable
+        ? 'Your browser can’t save your place.'
+        : state.completed
+          ? 'Finished'
+          : state.position > 0
+            ? `${audio.paused ? state.restored ? 'Resume at' : 'Paused at' : 'Listening ·'} ${timestamp(state.position)}`
+            : 'Your place is saved on this browser.';
+      restart.hidden = !(state.position > 0 || state.completed);
+    });
+    details.hidden = false;
+    restart.addEventListener('click', () => {
+      audio.focus({ preventScroll: true });
+      controller.restart();
+    });
+    audio.addEventListener('play', () => {
+      player.classList.add('is-pinned');
+      close.hidden = false;
+    });
+    close.addEventListener('click', () => {
+      audio.pause();
+      player.classList.remove('is-pinned');
+      close.hidden = true;
+    });
+  });
+</script>
+
+<style>
+  .player {
+    margin-bottom: 2.5rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 1.25rem;
+    z-index: 10;
+  }
+
+  .player.is-pinned {
+    position: sticky;
+    top: 0.75rem;
+    box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.25);
+  }
+
+  .player-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .player-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  audio {
+    flex: 1;
+    min-width: 0;
+    height: 2.25rem;
+  }
+
+  .player-close {
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    font: inherit;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .player-close:hover {
+    color: var(--ink);
+    background: var(--accent-soft);
+  }
+
+  .player-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    padding: 0.4rem 0.25rem 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .player-details[hidden] { display: none; }
+
+  .player-restart {
+    min-height: 2rem;
+    padding: 0.25rem 0.5rem;
+    font: inherit;
+    color: var(--accent);
+    background: none;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+
+  .player-restart:hover { background: var(--accent-soft); }
+
+  @media (max-width: 560px) {
+    .player { padding: 0.45rem; }
+    .player-controls { gap: 0.25rem; }
+    .player-label { display: none; }
+  }
+</style>

@@ -2,6 +2,7 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BookList from '../../components/BookList.astro';
+import AudioPlayer from '../../components/AudioPlayer.astro';
 import { getBooks, type Book } from '../../lib/books';
 
 export async function getStaticPaths() {
@@ -54,11 +55,7 @@ const base = import.meta.env.BASE_URL;
     </header>
 
     {book.hasAudio && (
-      <div class="player" id="player" data-pagefind-ignore>
-        <span class="player-label">Listen</span>
-        <audio controls preload="metadata" src={book.audioUrl}></audio>
-        <button type="button" class="player-close" id="player-close" aria-label="Stop and unpin player" hidden>×</button>
-      </div>
+      <AudioPlayer bookId={book.id} src={book.audioUrl} />
     )}
 
     <div class="prose" data-pagefind-body>
@@ -95,15 +92,18 @@ const base = import.meta.env.BASE_URL;
     if (r > 0.05) resume.hidden = true;
     clearTimeout(saveTimer);
     saveTimer = window.setTimeout(() => {
-      if (r > 0.97) localStorage.removeItem(key);
-      else if (r > 0.03) localStorage.setItem(key, String(r));
+      try {
+        if (r > 0.97) localStorage.removeItem(key);
+        else if (r > 0.03) localStorage.setItem(key, String(r));
+      } catch { /* Reading remains available when storage is blocked. */ }
     }, 300);
   }
 
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
-  const saved = Number(localStorage.getItem(key));
+  let saved = 0;
+  try { saved = Number(localStorage.getItem(key)); } catch { /* Storage is optional. */ }
   if (saved > 0.03 && ratio() < 0.01) {
     resume.textContent = `Resume reading · ${Math.round(saved * 100)}%`;
     resume.hidden = false;
@@ -114,22 +114,6 @@ const base = import.meta.env.BASE_URL;
     });
   }
 
-  // Once playback starts, keep the player in view (paused or not) so the
-  // reader can pause and resume without losing their place.
-  const player = document.getElementById('player');
-  const audio = player?.querySelector('audio');
-  const unpin = document.getElementById('player-close');
-  if (player && audio && unpin) {
-    audio.addEventListener('play', () => {
-      player.classList.add('is-pinned');
-      unpin.hidden = false;
-    });
-    unpin.addEventListener('click', () => {
-      audio.pause();
-      player.classList.remove('is-pinned');
-      unpin.hidden = true;
-    });
-  }
 </script>
 
 <style>
@@ -191,62 +175,6 @@ const base = import.meta.env.BASE_URL;
     border-top: 1px solid var(--rule);
     font-size: 0.85rem;
     color: var(--muted);
-  }
-
-  .player {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
-    padding: 0.6rem 0.6rem 0.6rem 1rem;
-    background: var(--surface);
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    z-index: 10;
-  }
-
-  .player.is-pinned {
-    position: sticky;
-    top: 0.75rem;
-    box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.25);
-  }
-
-  .player-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  .player audio {
-    flex: 1;
-    min-width: 0;
-    height: 2.25rem;
-  }
-
-  .player-close {
-    flex: none;
-    width: 2.25rem;
-    height: 2.25rem;
-    font: inherit;
-    font-size: 1.25rem;
-    line-height: 1;
-    color: var(--muted);
-    background: none;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-  }
-
-  .player-close:hover {
-    color: var(--ink);
-    background: var(--accent-soft);
-  }
-
-  @media (max-width: 560px) {
-    .player { padding: 0.35rem; }
-    .player-label { display: none; }
   }
 
   .prose {
