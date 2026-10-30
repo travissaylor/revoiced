@@ -18,7 +18,9 @@ pnpm install
 pnpm generate-audio <author-slug>/<title-slug> --paragraphs   # list numbered paragraphs
 pnpm generate-audio <author-slug>/<title-slug> --dry-run      # validate narration script, no API calls
 pnpm generate-audio <author-slug>/<title-slug>                # generate MP3 (needs GEMINI_API_KEY in .env)
+pnpm validate   # frontmatter, slugs, word count, narration dry-run, audio sizes
 pnpm build
+pnpm check      # everything CI runs: typecheck, validate, test, build, check-links
 ```
 
 If `pnpm` is not on PATH, use the Node install under `~/.nvm/versions/node/*/bin`.
@@ -35,3 +37,10 @@ If `pnpm` is not on PATH, use the Node install under `~/.nvm/versions/node/*/bin
 - Summaries are original retellings in the author's voice, 5,000–7,000 words. Never reproduce the book's text; copying passages is a copyright violation and a failed task.
 - Never rewrite summary prose to satisfy narration validation; fix the narration JSON instead.
 - Do not run git commands unless asked.
+
+## CI
+
+- CI runs on every PR. `main` is protected by a ruleset: PR required, `Check` and `Lint workflows` must pass.
+- Run `pnpm check` before opening a PR.
+- If `pnpm validate` fails on narration, fix the narration JSON, not the summary prose (see Conventions).
+- Repo settings live in `.github/rulesets/main.json`; apply them with `scripts/apply-repo-settings.sh [--dry-run]`.

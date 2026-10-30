@@ -2,15 +2,21 @@
   "name": "static-summary-browser",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "dev": "astro dev",
     "generate-icons": "node scripts/generate-icons.mjs",
     "generate-audio": "node --env-file-if-exists=.env scripts/generate-audio.mjs",
-    "build": "node scripts/generate-icons.mjs && astro build",
-    "postbuild": "pagefind --site dist",
+    "build": "node scripts/generate-icons.mjs && astro build && pagefind --site dist",
     "preview": "astro preview",
     "typecheck": "astro check",
-    "lint": "astro check"
+    "lint": "astro check",
+    "validate": "node scripts/validate-content.mjs",
+    "test": "node --test \"scripts/**/*.test.mjs\"",
+    "check-links": "node scripts/check-links.mjs",
+    "check": "pnpm typecheck && pnpm validate && pnpm test && pnpm build && pnpm check-links"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",
