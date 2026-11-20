@@ -7,7 +7,7 @@ settings:
 dependencies:
   '@astrojs/check':
     specifier: ^0.9.12
-    version: 0.9.12(@emnapi/runtime@1.11.3)(typescript@5.9.3)
+    version: 0.9.12(@emnapi/runtime@1.11.3)(typescript@6.0.3)
   '@astrojs/markdown-remark':
     specifier: ^7.3.9
     version: 7.3.9
@@ -21,8 +21,8 @@ dependencies:
     specifier: ^0.35.5
     version: 0.35.5
   typescript:
-    specifier: ^5.9.3
-    version: 5.9.3
+    specifier: ^6.0.3
+    version: 6.0.3
 
 devDependencies:
   ffmpeg-static:
@@ -47,16 +47,16 @@ packages:
       - '@emnapi/runtime'
     dev: false
 
-  /@astrojs/check@0.9.12(@emnapi/runtime@1.11.3)(typescript@5.9.3):
+  /@astrojs/check@0.9.12(@emnapi/runtime@1.11.3)(typescript@6.0.3):
     resolution: {integrity: sha512-hazpqxIfZWj2VhyPyR0pOEQ/IhFDM/2nIApL96zMXABdD8NrUKYDmhxTy7h+drTDl9MQG/Sd1ET/4amadVJUUA==}
     hasBin: true
     peerDependencies:
       typescript: ^5.0.0 || ^6.0.0
     dependencies:
-      '@astrojs/language-server': 2.17.3(@emnapi/runtime@1.11.3)(typescript@5.9.3)
+      '@astrojs/language-server': 2.17.3(@emnapi/runtime@1.11.3)(typescript@6.0.3)
       chokidar: 5.0.0
       kleur: 4.1.5
-      typescript: 5.9.3
+      typescript: 6.0.3
       yargs: 18.2.0
     transitivePeerDependencies:
       - '@emnapi/runtime'
@@ -193,7 +193,7 @@ packages:
       yaml: 2.9.1
     dev: false
 
-  /@astrojs/language-server@2.17.3(@emnapi/runtime@1.11.3)(typescript@5.9.3):
+  /@astrojs/language-server@2.17.3(@emnapi/runtime@1.11.3)(typescript@6.0.3):
     resolution: {integrity: sha512-QIAFu1e/4quJMTPdmBOm+ZPXc5NDGZE4/YQjgR3EgjhGLl/tdidaWJDr5WmO2lesVc+BW1qN/xNBURmuePDG2A==}
     hasBin: true
     peerDependencies:
@@ -207,7 +207,7 @@ packages:
     dependencies:
       '@astrojs/astro2tsx': 0.1.3(@emnapi/runtime@1.11.3)
       '@astrojs/yaml2ts': 0.2.4
-      '@volar/kit': 2.4.28(typescript@5.9.3)
+      '@volar/kit': 2.4.28(typescript@6.0.3)
       '@volar/language-core': 2.4.28
       '@volar/language-server': 2.4.28
       '@volar/language-service': 2.4.28
@@ -1287,7 +1287,7 @@ packages:
     resolution: {integrity: sha512-1mEZtMKPM09vDmQt5y7YvmN2+DFTP7Tg0EWXdic8/C6VRnpb33e4ghisCIE3WZjsE2N8mf+QV1Zqh7ZFYLWInQ==}
     dev: false
 
-  /@volar/kit@2.4.28(typescript@5.9.3):
+  /@volar/kit@2.4.28(typescript@6.0.3):
     resolution: {integrity: sha512-cKX4vK9dtZvDRaAzeoUdaAJEew6IdxHNCRrdp5Kvcl6zZOqb6jTOfk3kXkIkG3T7oTFXguEMt5+9ptyqYR84Pg==}
     peerDependencies:
       typescript: '*'
@@ -1295,7 +1295,7 @@ packages:
       '@volar/language-service': 2.4.28
       '@volar/typescript': 2.4.28
       typesafe-path: 0.2.2
-      typescript: 5.9.3
+      typescript: 6.0.3
       vscode-languageserver-textdocument: 1.0.12
       vscode-uri: 3.2.0
     dev: false
@@ -3629,8 +3629,8 @@ packages:
       semver: 7.8.5
     dev: false
 
-  /typescript@5.9.3:
-    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+  /typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: false
