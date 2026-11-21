@@ -50,6 +50,12 @@ test('parseFrontmatter splits frontmatter and body', () => {
   assert.equal(parsed.body, 'body text\n');
 });
 
+test('parseFrontmatter accepts CRLF line endings', () => {
+  const parsed = parseFrontmatter('---\r\ntitle: A\r\nyear: 1925\r\n---\r\nbody\r\n\r\nmore\r\n');
+  assert.deepEqual(parsed.data, { title: 'A', year: 1925 });
+  assert.equal(parsed.body, 'body\n\nmore\n');
+});
+
 test('parseFrontmatter rejects missing fences and bad YAML', () => {
   assert.match(parseFrontmatter('no frontmatter').error, /frontmatter/);
   assert.match(parseFrontmatter('---\ntitle: [oops\n---\nbody').error, /YAML/);
@@ -97,6 +103,11 @@ test('valid repo has no errors and reports counts', async () => {
   });
   assert.deepEqual(result.errors, []);
   assert.deepEqual(result.stats, { summaries: 1, narrations: 1, audio: 1 });
+});
+
+test('summaries with CRLF line endings validate like LF ones', async () => {
+  const result = await validate({ [GATSBY]: summary().replace(/\n/g, '\r\n') });
+  assert.deepEqual(result.errors, []);
 });
 
 test('check 1: malformed frontmatter and stray files are errors', async () => {
