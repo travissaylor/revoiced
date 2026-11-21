@@ -25,7 +25,7 @@ import { mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import ffmpegPath from 'ffmpeg-static';
-import { parse as parseYaml } from 'yaml';
+import { parseFrontmatter } from './lib/content.mjs';
 
 const ROOT = path.join(import.meta.dirname, '..');
 const SUMMARIES_DIR = path.join(ROOT, 'summaries');
@@ -57,9 +57,9 @@ const normalize = (s) => s.replace(/\s+/g, ' ').trim();
 const stripTags = (s) => normalize(s.replace(/\[[^\[\]]{1,60}\]/g, ' '));
 
 function parseSummary(raw) {
-  const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  if (!match) fail('Could not parse frontmatter');
-  return { data: parseYaml(match[1]), body: match[2].trim() };
+  const parsed = parseFrontmatter(raw);
+  if (parsed.error) fail(`Could not parse frontmatter: ${parsed.error}`);
+  return { data: parsed.data, body: parsed.body.trim() };
 }
 
 const splitParagraphs = (body) => body.split(/\n\s*\n/).map(normalize).filter(Boolean);

@@ -18,9 +18,12 @@ const IGNORED_FILES = new Set(['.DS_Store']);
 const isNonEmptyString = (value) => typeof value === 'string' && value.trim() !== '';
 const isPlainObject = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);
 
-// Same split the audio generator uses.
+// Shared with scripts/generate-audio.mjs. The fences accept CRLF so Windows
+// checkouts (core.autocrlf=true) parse, and a leading UTF-8 BOM is skipped.
+// The YAML and body are left as-is: the YAML parser handles CRLF line breaks
+// itself, and rewriting every \r would alter literal CRs inside quoted values.
 export function parseFrontmatter(raw) {
-  const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  const match = raw.match(/^﻿?---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) {
     return { error: 'missing or malformed frontmatter (expected "---" fences at the top of the file)' };
   }

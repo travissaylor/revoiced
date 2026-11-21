@@ -1,0 +1,21 @@
+# Check out text files with LF everywhere, regardless of core.autocrlf.
+# The summary and narration tooling expects "---\n" frontmatter fences.
+* text=auto eol=lf
+
+# Binary assets: never convert line endings or diff as text.
+*.mp3   binary
+*.wav   binary
+*.ogg   binary
+*.m4a   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.webp  binary
+*.avif  binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.pdf   binary
